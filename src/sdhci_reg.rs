@@ -40,54 +40,196 @@ impl Reg {
     }
 }
 
-pub mod emmc_sw_rst_bits {
-    pub const EMMC_SW_RST_OFFSET: u64 = 0x2F;
 
-    pub const EMMC_SW_RST_ALL_POS: u8 = 0;
-    pub const EMMC_SW_RST_ALL_MASK: u8 = 0x01 << EMMC_SW_RST_ALL_POS;
-    pub const EMMC_SW_RST_ALL: u8 = EMMC_SW_RST_ALL_MASK;
-    pub const EMMC_SW_RST_CMD_POS: u8 = 1;
-    pub const EMMC_SW_RST_CMD_MASK: u8 = 0x01 << EMMC_SW_RST_CMD_POS;
-    pub const EMMC_SW_RST_CMD: u8 = EMMC_SW_RST_CMD_MASK;
-    pub const EMMC_SW_RST_DATA_POS: u8 = 2;
-    pub const EMMC_SW_RST_DATA_MASK: u8 = 0x01 << EMMC_SW_RST_DATA_POS;
-    pub const EMMC_SW_RST_DATA: u8 = EMMC_SW_RST_DATA_MASK;
+pub mod emmc_argument_bits {
+    pub const EMMC_ARGUMENT_OFFSET: u64 = 0x08;
+
+    pub const EMMC_ARGUMENT_POS: u32 = 0;
+    pub const EMMC_ARGUMENT_MASK: u32 = 0xffffffff << EMMC_ARGUMENT_POS;
+    pub const EMMC_ARGUMENT: u32 = EMMC_ARGUMENT_MASK;
 }
 
-use emmc_sw_rst_bits::*;
+impl Reg {
+    pub fn emmc_set_argument(&self, arg: u32) {
+        let addr = self.base_addr + emmc_argument_bits::EMMC_ARGUMENT_OFFSET;
+        self.write_reg(addr, arg);
+    }
+
+    pub fn emmc_get_argument(&self) -> u32 {
+        let addr = self.base_addr + emmc_argument_bits::EMMC_ARGUMENT_OFFSET;
+        self.read_reg(addr)
+    }
+}
+
+pub mod emmc_cmd_bits {
+    pub const EMMC_CMD_OFFSET: u64 = 0x0e;
+
+    pub const EMMC_RESP_TYPE_POS: u16 = 0;
+    pub const EMMC_RESP_TYPE_MASK: u16 = 0x03 << EMMC_RESP_TYPE_POS;
+    pub const EMMC_RESP_TYPE: u16 = EMMC_RESP_TYPE_MASK;
+    pub const EMMC_RESP_TYPE_NONE: u16 = 0x00 << EMMC_RESP_TYPE_POS;
+    pub const EMMC_RESP_TYPE_LEN_136: u16 = 0x01 << EMMC_RESP_TYPE_POS;
+    pub const EMMC_RESP_TYPE_LEN_48: u16 = 0x02 << EMMC_RESP_TYPE_POS;
+    pub const EMMC_RESP_TYPE_LEN_48_CHECK: u16 = 0x03 << EMMC_RESP_TYPE_POS;
+    pub const EMMC_SUB_CMD_POS: u16 = 2;
+    pub const EMMC_SUB_CMD_MASK: u16 = 0x01 << EMMC_SUB_CMD_POS;
+    pub const EMMC_SUB_CMD: u16 = EMMC_SUB_CMD_MASK;
+    pub const EMMC_CMD_CRC_CHK_POS: u16 = 3;
+    pub const EMMC_CMD_CRC_CHK_MASK: u16 = 0x01 << EMMC_CMD_CRC_CHK_POS;
+    pub const EMMC_CMD_CRC_CHK: u16 = EMMC_CMD_CRC_CHK_MASK;
+    pub const EMMC_CMD_IDX_CHK_POS: u16 = 4;
+    pub const EMMC_CMD_IDX_CHK_MASK: u16 = 0x01 << EMMC_CMD_IDX_CHK_POS;
+    pub const EMMC_CMD_IDX_CHK: u16 = EMMC_CMD_IDX_CHK_MASK;
+    pub const EMMC_DATA_PRESENT_POS: u16 = 5;
+    pub const EMMC_DATA_PRESENT_MASK: u16 = 0x01 << EMMC_DATA_PRESENT_POS;
+    pub const EMMC_DATA_PRESENT: u16 = EMMC_DATA_PRESENT_MASK;
+    pub const EMMC_CMD_TYPE_POS: u16 = 6;
+    pub const EMMC_CMD_TYPE_MASK: u16 = 0x03 << EMMC_CMD_TYPE_POS;
+    pub const EMMC_CMD_TYPE: u16 = EMMC_CMD_TYPE_MASK;
+    pub const EMMC_CMD_TYPE_NORMAL: u16 = 0x00 << EMMC_CMD_TYPE_POS;
+    pub const EMMC_CMD_TYPE_SUSPEND: u16 = 0x01 << EMMC_CMD_TYPE_POS;
+    pub const EMMC_CMD_TYPE_RESUME: u16 = 0x02 << EMMC_CMD_TYPE_POS;
+    pub const EMMC_CMD_TYPE_ABORT: u16 = 0x03 << EMMC_CMD_TYPE_POS;
+    pub const EMMC_CMD_INDEX_POS: u16 = 8;
+    pub const EMMC_CMD_INDEX_MASK: u16 = 0x3f << EMMC_CMD_INDEX_POS;
+    pub const EMMC_CMD_INDEX: u16 = EMMC_CMD_INDEX_MASK;
+}
 
 impl Reg {
-    pub fn emmc_reset_all(&self) {
-        let addr = self.base_addr + EMMC_SW_RST_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value | EMMC_SW_RST_ALL);
+    pub fn emmc_set_cmd(&self, cmd: u16) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        self.write_reg16(addr, cmd);
+    }
+    
+    pub fn emmc_get_cmd(&self) -> u16 {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        self.read_reg16(addr)
     }
 
-    pub fn emmc_reset_all_is_finished(&self) -> bool {
-        let addr = self.base_addr + EMMC_SW_RST_OFFSET;
-        self.read_reg8(addr) & EMMC_SW_RST_ALL == 0
+    pub fn emmc_set_resp_type(&self, resp_type: u16) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, (value & emmc_cmd_bits::EMMC_RESP_TYPE_MASK) | resp_type);
     }
 
-    pub fn emmc_reset_cmd(&self) {
-        let addr = self.base_addr + EMMC_SW_RST_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value | EMMC_SW_RST_CMD);
+    pub fn emmc_enable_sub_cmd(&self) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value | emmc_cmd_bits::EMMC_SUB_CMD);
     }
 
-    pub fn emmc_reset_cmd_is_finished(&self) -> bool {
-        let addr = self.base_addr + EMMC_SW_RST_OFFSET;
-        self.read_reg8(addr) & EMMC_SW_RST_CMD == 0
+    pub fn emmc_disable_sub_cmd(&self) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_SUB_CMD);
     }
 
-    pub fn emmc_reset_data(&self) {
-        let addr = self.base_addr + EMMC_SW_RST_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value | EMMC_SW_RST_DATA);
+    pub fn emmc_enable_cmd_crc_check(&self) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value | emmc_cmd_bits::EMMC_CMD_CRC_CHK);
     }
 
-    pub fn emmc_reset_data_is_finished(&self) -> bool {
-        let addr = self.base_addr + EMMC_SW_RST_OFFSET;
-        self.read_reg8(addr) & EMMC_SW_RST_DATA == 0
+    pub fn emmc_disable_cmd_crc_check(&self) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_CMD_CRC_CHK);
+    }
+
+    pub fn emmc_enable_cmd_idx_check(&self) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value | emmc_cmd_bits::EMMC_CMD_IDX_CHK);
+    }
+
+    pub fn emmc_disable_cmd_idx_check(&self) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_CMD_IDX_CHK);
+    }
+
+    pub fn emmc_enable_data_present(&self) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value | emmc_cmd_bits::EMMC_DATA_PRESENT);
+    }
+
+    pub fn emmc_disable_data_present(&self) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_DATA_PRESENT);
+    }
+
+    pub fn emmc_set_cmd_type(&self, cmd_type: u16) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, (value & emmc_cmd_bits::EMMC_RESP_TYPE_MASK) | cmd_type);
+    }
+
+    pub fn emmc_set_cmd_index(&self, cmd_idx: u16) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, (value & emmc_cmd_bits::EMMC_CMD_INDEX_MASK) | cmd_idx);
+    }
+}
+
+pub mod emmc_resp01_bits {
+    pub const EMMC_RESP01_OFFSET: u64 = 0x10;
+
+    pub const EMMC_RESP01_POS: u32 = 0;
+    pub const EMMC_RESP01_MASK: u32 = 0x0ffffffff << EMMC_RESP01_POS;
+    pub const EMMC_RESP01: u32 = EMMC_RESP01_MASK;
+}
+
+impl Reg {
+    pub fn emmc_get_resp01(&self) -> u32 {
+        let addr = self.base_addr + emmc_resp01_bits::EMMC_RESP01_OFFSET;
+        self.read_reg(addr)
+    }
+}
+
+pub mod emmc_resp23_bits {
+    pub const EMMC_RESP23_OFFSET: u64 = 0x14;
+
+    pub const EMMC_RESP23_POS: u32 = 0;
+    pub const EMMC_RESP23_MASK: u32 = 0x0ffffffff << EMMC_RESP23_POS;
+    pub const EMMC_RESP23: u32 = EMMC_RESP23_MASK;
+}
+
+impl Reg {
+    pub fn emmc_get_resp23(&self) -> u32 {
+        let addr = self.base_addr + emmc_resp23_bits::EMMC_RESP23_OFFSET;
+        self.read_reg(addr)
+    }
+}
+
+pub mod emmc_resp45_bits {
+    pub const EMMC_RESP45_OFFSET: u64 = 0x14;
+
+    pub const EMMC_RESP45_POS: u32 = 0;
+    pub const EMMC_RESP45_MASK: u32 = 0x0ffffffff << EMMC_RESP45_POS;
+    pub const EMMC_RESP45: u32 = EMMC_RESP45_MASK;
+}
+
+impl Reg {
+    pub fn emmc_get_resp45(&self) -> u32 {
+        let addr = self.base_addr + emmc_resp45_bits::EMMC_RESP45_OFFSET;
+        self.read_reg(addr)
+    }
+}
+
+pub mod emmc_resp67_bits {
+    pub const EMMC_RESP67_OFFSET: u64 = 0x14;
+
+    pub const EMMC_RESP67_POS: u32 = 0;
+    pub const EMMC_RESP67_MASK: u32 = 0x0ffffffff << EMMC_RESP67_POS;
+    pub const EMMC_RESP67: u32 = EMMC_RESP67_MASK;
+}
+
+impl Reg {
+    pub fn emmc_get_resp67(&self) -> u32 {
+        let addr = self.base_addr + emmc_resp67_bits::EMMC_RESP67_OFFSET;
+        self.read_reg(addr)
     }
 }
 
@@ -119,39 +261,108 @@ pub mod emmc_pstate_bits {
     pub const EMMC_DATA_LINE3_0_LEVEL: u32 = EMMC_DATA_LINE3_0_LEVEL_MASK;
 }
 
-use emmc_pstate_bits::*;
-
 impl Reg {
     pub fn emmc_cmd_is_ready(&self) -> bool {
-        let addr = self.base_addr + EMMC_PSTATE_OFFSET;
-        self.read_reg(addr) & EMMC_CMD_INHIBIT == 0
+        let addr = self.base_addr + emmc_pstate_bits::EMMC_PSTATE_OFFSET;
+        self.read_reg(addr) & emmc_pstate_bits::EMMC_CMD_INHIBIT == 0
     }
 
     pub fn emmc_cmd_data_is_ready(&self) -> bool {
-        let addr = self.base_addr + EMMC_PSTATE_OFFSET;
-        self.read_reg(addr) & EMMC_CMD_INHIBIT_DATA == 0
+        let addr = self.base_addr + emmc_pstate_bits::EMMC_PSTATE_OFFSET;
+        self.read_reg(addr) & emmc_pstate_bits::EMMC_CMD_INHIBIT_DATA == 0
     }
 
     pub fn emmc_data_line_is_active(&self) -> bool {
-        let addr = self.base_addr + EMMC_PSTATE_OFFSET;
-        self.read_reg(addr) & EMMC_DATA_LINE_ACTIVE == EMMC_DATA_LINE_ACTIVE
+        let addr = self.base_addr + emmc_pstate_bits::EMMC_PSTATE_OFFSET;
+        self.read_reg(addr) & emmc_pstate_bits::EMMC_DATA_LINE_ACTIVE == emmc_pstate_bits::EMMC_DATA_LINE_ACTIVE
     }
 
     pub fn emmc_get_data_line_level(&self) -> u8 {
-        let addr = self.base_addr + EMMC_PSTATE_OFFSET;
+        let addr = self.base_addr + emmc_pstate_bits::EMMC_PSTATE_OFFSET;
         let value = self.read_reg(addr);
-        ((value & EMMC_DATA_LINE7_4_LEVEL) | ((value & EMMC_DATA_LINE3_0_LEVEL) >> EMMC_DATA_LINE3_0_LEVEL_POS)) as u8
+        ((value & emmc_pstate_bits::EMMC_DATA_LINE7_4_LEVEL) | ((value & emmc_pstate_bits::EMMC_DATA_LINE3_0_LEVEL) >> emmc_pstate_bits::EMMC_DATA_LINE3_0_LEVEL_POS)) as u8
     }
 
     pub fn emmc_card_is_inserted(&self) -> bool {
-        let addr = self.base_addr + EMMC_PSTATE_OFFSET;
-        self.read_reg(addr) & EMMC_CARD_INSERTED == EMMC_CARD_INSERTED
+        let addr = self.base_addr + emmc_pstate_bits::EMMC_PSTATE_OFFSET;
+        self.read_reg(addr) & emmc_pstate_bits::EMMC_CARD_INSERTED == emmc_pstate_bits::EMMC_CARD_INSERTED
     }
 
     pub fn emmc_card_is_stable(&self) -> bool {
-        let addr = self.base_addr + EMMC_PSTATE_OFFSET;
-        self.read_reg(addr) & EMMC_CARD_STABLE == EMMC_CARD_STABLE
+        let addr = self.base_addr + emmc_pstate_bits::EMMC_PSTATE_OFFSET;
+        self.read_reg(addr) & emmc_pstate_bits::EMMC_CARD_STABLE == emmc_pstate_bits::EMMC_CARD_STABLE
     }
+}
+
+pub mod emmc_host_ctrl1_bits {
+    pub const EMMC_HOST_CTRL1_OFFSET: u64 = 0x28;
+
+    pub const EMMC_DAT_XFER_WIDTH_POS: u8 = 1;
+    pub const EMMC_DAT_XFER_WIDTH_MASK: u8 = 0x01 << EMMC_DAT_XFER_WIDTH_POS;
+    pub const EMMC_DAT_XFER_WIDTH: u8 = EMMC_DAT_XFER_WIDTH_MASK;
+    pub const EMMC_HIGH_SPEED_EN_POS: u8 = 2;
+    pub const EMMC_HIGH_SPEED_EN_MASK: u8 = 0x01 << EMMC_HIGH_SPEED_EN_POS;
+    pub const EMMC_HIGH_SPEED_EN: u8 = EMMC_HIGH_SPEED_EN_MASK;
+    pub const EMMC_DMA_SEL_POS: u8 = 3;
+    pub const EMMC_DMA_SEL_MASK: u8 = 0x03 << EMMC_DMA_SEL_POS;
+    pub const EMMC_DMA_SEL: u8 = EMMC_DMA_SEL_MASK;
+    pub const EMMC_DMA_SEL_SDMA: u8 = 0 << EMMC_DMA_SEL_POS;
+    pub const EMMC_DMA_SEL_ADMA2: u8 = 2 << EMMC_DMA_SEL_POS;
+    pub const EMMC_DMA_SEL_ADMA2_3: u8 = 3 << EMMC_DMA_SEL_POS;
+    pub const EMMC_EXT_DAT_XFER_POS: u8 = 5;
+    pub const EMMC_EXT_DAT_XFER_MASK: u8 = 0x01 << EMMC_EXT_DAT_XFER_POS;
+    pub const EMMC_EXT_DAT_XFER: u8 = EMMC_EXT_DAT_XFER_MASK;
+    // pub const EMMC_CARD_DETECT_TEST_LVL_POS: u8 = 6;
+    // pub const EMMC_CARD_DETECT_TEST_LVL_MASK: u8 = 0x01 << EMMC_CARD_DETECT_TEST_LVL_POS;
+    // pub const EMMC_CARD_DETECT_TEST_LVL: u8 = EMMC_CARD_DETECT_TEST_LVL_MASK;
+    // pub const EMMC_CARD_DETECT_SIG_SEL_POS: u8 = 7;
+    // pub const EMMC_CARD_DETECT_SIG_SEL_MASK: u8 = 0x01 << EMMC_CARD_DETECT_SIG_SEL_POS;
+    // pub const EMMC_CARD_DETECT_SIG_SEL: u8 = EMMC_CARD_DETECT_SIG_SEL_MASK;
+}
+
+impl Reg {
+    pub fn emmc_enable_data_xfer_width_1bit(&self) {
+        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value & !emmc_host_ctrl1_bits::EMMC_DAT_XFER_WIDTH);
+    }
+
+    pub fn emmc_enable_data_xfer_width_4bit(&self) {
+        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value | emmc_host_ctrl1_bits::EMMC_DAT_XFER_WIDTH);
+    }
+
+    pub fn emmc_enable_high_speed(&self) {
+        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value | emmc_host_ctrl1_bits::EMMC_HIGH_SPEED_EN);
+    }
+
+    pub fn emmc_disable_high_speed(&self) {
+        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value & !emmc_host_ctrl1_bits::EMMC_HIGH_SPEED_EN);
+    }
+
+    pub fn emmc_select_dma(&self, dma_sel: u8) {
+        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, (value & !emmc_host_ctrl1_bits::EMMC_DMA_SEL_MASK) | dma_sel);
+    }
+
+    pub fn emmc_enable_ext_data_xfre(&self) {
+        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value | emmc_host_ctrl1_bits::EMMC_EXT_DAT_XFER);
+    }
+
+    pub fn emmc_disable_ext_data_xfre(&self) {
+        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value & !emmc_host_ctrl1_bits::EMMC_EXT_DAT_XFER);
+    }
+
 }
 
 pub mod emmc_pwr_ctrl_bits {
@@ -162,19 +373,146 @@ pub mod emmc_pwr_ctrl_bits {
     pub const EMMC_PWR_ON: u8 = EMMC_PWR_ON_MASK;
 }
 
-use emmc_pwr_ctrl_bits::*;
-
 impl Reg {
     pub fn emmc_pwr_on(&self) {
-        let addr = self.base_addr + EMMC_PWR_CTRL_OFFSET;
+        let addr = self.base_addr + emmc_pwr_ctrl_bits::EMMC_PWR_CTRL_OFFSET;
         let value = self.read_reg8(addr);
-        self.write_reg8(addr, value | EMMC_PWR_ON);
+        self.write_reg8(addr, value | emmc_pwr_ctrl_bits::EMMC_PWR_ON);
     }
 
     pub fn emmc_pwr_off(&self) {
-        let addr = self.base_addr + EMMC_PWR_CTRL_OFFSET;
+        let addr = self.base_addr + emmc_pwr_ctrl_bits::EMMC_PWR_CTRL_OFFSET;
         let value = self.read_reg8(addr);
-        self.write_reg8(addr, value & !EMMC_PWR_ON);
+        self.write_reg8(addr, value & !emmc_pwr_ctrl_bits::EMMC_PWR_ON);
+    }
+}
+
+pub mod emmc_clk_ctrl_bits {
+    pub const EMMC_CLK_CTRL_OFFSET: u64 = 0x2c;
+
+    pub const EMMC_INTERNAL_CLK_EN_POS: u16 = 0;
+    pub const EMMC_INTERNAL_CLK_EN_MASK: u16 = 0x01 << EMMC_INTERNAL_CLK_EN_POS;
+    pub const EMMC_INTERNAL_CLK_EN: u16 = EMMC_INTERNAL_CLK_EN_MASK;
+    pub const EMMC_INTERNAL_CLK_STABLE_POS: u16 = 1;
+    pub const EMMC_INTERNAL_CLK_STABLE_MASK: u16 = 0x01 << EMMC_INTERNAL_CLK_STABLE_POS;
+    pub const EMMC_INTERNAL_CLK_STABLE: u16 = EMMC_INTERNAL_CLK_STABLE_MASK;
+    pub const EMMC_SD_CLK_EN_POS: u16 = 2;
+    pub const EMMC_SD_CLK_EN_MASK: u16 = 0x01 << EMMC_SD_CLK_EN_POS;
+    pub const EMMC_SD_CLK_EN: u16 = EMMC_SD_CLK_EN_MASK;
+    pub const EMMC_CLK_GEN_TYPE_POS: u16 = 5;
+    pub const EMMC_CLK_GEN_TYPE_MASK: u16 = 0x01 << EMMC_CLK_GEN_TYPE_POS;
+    pub const EMMC_CLK_GEN_TYPE: u16 = EMMC_CLK_GEN_TYPE_MASK;
+    pub const EMMC_CLK_GEN_TYPE_PROG: u16 = 0x01 << EMMC_CLK_GEN_TYPE_POS;
+    pub const EMMC_CLK_GEN_TYPE_DIV: u16 = 0x00;
+    pub const EMMC_UPPER_FREQ_POS: u16 = 6;
+    pub const EMMC_UPPER_FREQ_MASK: u16 = 0x03 << EMMC_UPPER_FREQ_POS;
+    pub const EMMC_UPPER_FREQ: u16 = EMMC_UPPER_FREQ_MASK;
+    pub const EMMC_FREQ_POS: u16 = 8;
+    pub const EMMC_FREQ_MASK: u16 = 0xff << EMMC_FREQ_POS;
+    pub const EMMC_FREQ: u16 = EMMC_FREQ_MASK;
+}
+
+impl Reg {
+    pub fn emmc_set_clk_ctrl(&self, clk_ctrl: u16) {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        self.write_reg16(addr, clk_ctrl);
+    }
+
+    pub fn emmc_get_clk_ctrl(&self) -> u16 {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        self.read_reg16(addr)
+    }
+
+    pub fn emmc_enable_internal_clk(&self) {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value | emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_EN);
+    }
+
+    pub fn emmc_disable_internal_clk(&self) {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value & !emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_EN);
+    }
+
+    pub fn emmc_internal_clk_is_stable(&self) -> bool {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        (self.read_reg16(addr) & emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_STABLE) == emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_STABLE
+    }
+
+    pub fn emmc_enable_sd_clk(&self) {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value | emmc_clk_ctrl_bits::EMMC_SD_CLK_EN);
+    }
+
+    pub fn emmc_disable_sd_clk(&self) {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value & !emmc_clk_ctrl_bits::EMMC_SD_CLK_EN);
+    }
+
+    pub fn emmc_set_clk_gen_type(&self, clk_gen_type: u16) {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, (value & !emmc_clk_ctrl_bits::EMMC_CLK_GEN_TYPE_MASK) | clk_gen_type);
+    }
+
+    pub fn emmc_set_freq(&self, freq: u16) {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        let value = self.read_reg16(addr);
+        self.write_reg16(addr, value & !(emmc_clk_ctrl_bits::EMMC_FREQ_MASK | emmc_clk_ctrl_bits::EMMC_UPPER_FREQ_MASK) 
+                                | ((freq & 0xff) << emmc_clk_ctrl_bits::EMMC_FREQ_POS) 
+                                | (((freq & 0x300) >> emmc_clk_ctrl_bits::EMMC_FREQ_POS) << emmc_clk_ctrl_bits::EMMC_UPPER_FREQ_POS));
+    }
+}
+
+pub mod emmc_sw_rst_bits {
+    pub const EMMC_SW_RST_OFFSET: u64 = 0x2F;
+
+    pub const EMMC_SW_RST_ALL_POS: u8 = 0;
+    pub const EMMC_SW_RST_ALL_MASK: u8 = 0x01 << EMMC_SW_RST_ALL_POS;
+    pub const EMMC_SW_RST_ALL: u8 = EMMC_SW_RST_ALL_MASK;
+    pub const EMMC_SW_RST_CMD_POS: u8 = 1;
+    pub const EMMC_SW_RST_CMD_MASK: u8 = 0x01 << EMMC_SW_RST_CMD_POS;
+    pub const EMMC_SW_RST_CMD: u8 = EMMC_SW_RST_CMD_MASK;
+    pub const EMMC_SW_RST_DATA_POS: u8 = 2;
+    pub const EMMC_SW_RST_DATA_MASK: u8 = 0x01 << EMMC_SW_RST_DATA_POS;
+    pub const EMMC_SW_RST_DATA: u8 = EMMC_SW_RST_DATA_MASK;
+}
+
+impl Reg {
+    pub fn emmc_reset_all(&self) {
+        let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value | emmc_sw_rst_bits::EMMC_SW_RST_ALL);
+    }
+
+    pub fn emmc_reset_all_is_finished(&self) -> bool {
+        let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
+        self.read_reg8(addr) & emmc_sw_rst_bits::EMMC_SW_RST_ALL == 0
+    }
+
+    pub fn emmc_reset_cmd(&self) {
+        let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value | emmc_sw_rst_bits::EMMC_SW_RST_CMD);
+    }
+
+    pub fn emmc_reset_cmd_is_finished(&self) -> bool {
+        let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
+        self.read_reg8(addr) & emmc_sw_rst_bits::EMMC_SW_RST_CMD == 0
+    }
+
+    pub fn emmc_reset_data(&self) {
+        let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value | emmc_sw_rst_bits::EMMC_SW_RST_DATA);
+    }
+
+    pub fn emmc_reset_data_is_finished(&self) -> bool {
+        let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
+        self.read_reg8(addr) & emmc_sw_rst_bits::EMMC_SW_RST_DATA == 0
     }
 }
 
@@ -222,36 +560,40 @@ pub mod emmc_normal_int_stat_bits {
     pub const EMMC_ERROR_INT: u16 = EMMC_ERROR_INT_MASK;
 }
 
-use emmc_normal_int_stat_bits::*;
-
 impl Reg {
     pub fn emmc_clear_all_normal_int_flags(&self) {
-        let addr = self.base_addr + EMMC_NORMAL_INT_STAT_OFFSET;
+        let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
         let mut value = self.read_reg16(addr);
-        value |= EMMC_CMD_COMPLETE | EMMC_XFER_COMPLETE | EMMC_BGAP_EVENT
-                | EMMC_DMA_INTERRUPT | EMMC_BUF_WR_READY | EMMC_BUF_RD_READY
-                | EMMC_CARD_INSERTION | EMMC_CARD_REMOVAL | EMMC_CQE_EVENT;
+        value |= emmc_normal_int_stat_bits::EMMC_CMD_COMPLETE
+                | emmc_normal_int_stat_bits::EMMC_XFER_COMPLETE
+                | emmc_normal_int_stat_bits::EMMC_BGAP_EVENT
+                | emmc_normal_int_stat_bits::EMMC_DMA_INTERRUPT
+                | emmc_normal_int_stat_bits::EMMC_BUF_WR_READY
+                | emmc_normal_int_stat_bits::EMMC_BUF_RD_READY
+                | emmc_normal_int_stat_bits::EMMC_CARD_INSERTION
+                | emmc_normal_int_stat_bits::EMMC_CARD_REMOVAL
+                | emmc_normal_int_stat_bits::EMMC_CQE_EVENT;
         self.write_reg16(addr, value);
     }
 
     pub fn emmc_card_interrupt_is_actived(&self) -> bool {
-        let addr = self.base_addr + EMMC_NORMAL_INT_STAT_OFFSET;
-        self.read_reg16(addr) & EMMC_CARD_INTERRUPT == EMMC_CARD_INTERRUPT
+        let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
+        self.read_reg16(addr) & emmc_normal_int_stat_bits::EMMC_CARD_INTERRUPT == emmc_normal_int_stat_bits::EMMC_CARD_INTERRUPT
     }
 
     pub fn emmc_re_tune_event_is_actived(&self) -> bool {
-        let addr = self.base_addr + EMMC_NORMAL_INT_STAT_OFFSET;
-        self.read_reg16(addr) & EMMC_RE_TUNE_EVENT == EMMC_RE_TUNE_EVENT
+        let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
+        self.read_reg16(addr) & emmc_normal_int_stat_bits::EMMC_RE_TUNE_EVENT == emmc_normal_int_stat_bits::EMMC_RE_TUNE_EVENT
     }
 
     pub fn emmc_fx_event_is_actived(&self) -> bool {
-        let addr = self.base_addr + EMMC_NORMAL_INT_STAT_OFFSET;
-        self.read_reg16(addr) & EMMC_FX_EVENT == EMMC_FX_EVENT
+        let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
+        self.read_reg16(addr) & emmc_normal_int_stat_bits::EMMC_FX_EVENT == emmc_normal_int_stat_bits::EMMC_FX_EVENT
     }
 
     pub fn emmc_error_int_is_actived(&self) -> bool {
-        let addr = self.base_addr + EMMC_NORMAL_INT_STAT_OFFSET;
-        self.read_reg16(addr) & EMMC_ERROR_INT == EMMC_ERROR_INT
+        let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
+        self.read_reg16(addr) & emmc_normal_int_stat_bits::EMMC_ERROR_INT == emmc_normal_int_stat_bits::EMMC_ERROR_INT
     }
 }
 
@@ -296,16 +638,22 @@ pub mod emmc_error_int_stat_bits {
     pub const EMMC_BOOT_ACK_ERR: u16 = EMMC_BOOT_ACK_ERR_MASK;
 }
 
-use emmc_error_int_stat_bits::*;
-
 impl Reg {
     pub fn emmc_clear_all_error_int_flags(&self) {
-        let addr = self.base_addr + EMMC_ERROR_INT_STAT_OFFSET;
+        let addr = self.base_addr + emmc_error_int_stat_bits::EMMC_ERROR_INT_STAT_OFFSET;
         let mut value = self.read_reg16(addr);
-        value |= EMMC_CMD_TOUT_ERR | EMMC_CMD_CRC_ERR | EMMC_CMD_END_BIT_ERR
-                | EMMC_CMD_IDX_ERR | EMMC_DATA_TOUT_ERR | EMMC_DATA_CRC_ERR
-                | EMMC_DATA_END_BIT_ERR | EMMC_AUTO_CMD_ERR | EMMC_ADMA_ERR
-                | EMMC_TUNING_ERR | EMMC_RESP_ERR | EMMC_BOOT_ACK_ERR;
+        value |= emmc_error_int_stat_bits::EMMC_CMD_TOUT_ERR
+                | emmc_error_int_stat_bits::EMMC_CMD_CRC_ERR
+                | emmc_error_int_stat_bits::EMMC_CMD_END_BIT_ERR
+                | emmc_error_int_stat_bits::EMMC_CMD_IDX_ERR
+                | emmc_error_int_stat_bits::EMMC_DATA_TOUT_ERR
+                | emmc_error_int_stat_bits::EMMC_DATA_CRC_ERR
+                | emmc_error_int_stat_bits::EMMC_DATA_END_BIT_ERR
+                | emmc_error_int_stat_bits::EMMC_AUTO_CMD_ERR
+                | emmc_error_int_stat_bits::EMMC_ADMA_ERR
+                | emmc_error_int_stat_bits::EMMC_TUNING_ERR
+                | emmc_error_int_stat_bits::EMMC_RESP_ERR
+                | emmc_error_int_stat_bits::EMMC_BOOT_ACK_ERR;
         self.write_reg16(addr, value);
     }
 }
@@ -598,343 +946,96 @@ impl Reg {
     }
 }
 
-pub mod emmc_host_ctrl1_bits {
-    pub const EMMC_HOST_CTRL1_OFFSET: u64 = 0x28;
+/* TODO
+ *
+ * offset 0x0180 - 0x01dc
+*/
 
-    pub const EMMC_DAT_XFER_WIDTH_POS: u8 = 1;
-    pub const EMMC_DAT_XFER_WIDTH_MASK: u8 = 0x01 << EMMC_DAT_XFER_WIDTH_POS;
-    pub const EMMC_DAT_XFER_WIDTH: u8 = EMMC_DAT_XFER_WIDTH_MASK;
-    pub const EMMC_HIGH_SPEED_EN_POS: u8 = 2;
-    pub const EMMC_HIGH_SPEED_EN_MASK: u8 = 0x01 << EMMC_HIGH_SPEED_EN_POS;
-    pub const EMMC_HIGH_SPEED_EN: u8 = EMMC_HIGH_SPEED_EN_MASK;
-    pub const EMMC_DMA_SEL_POS: u8 = 3;
-    pub const EMMC_DMA_SEL_MASK: u8 = 0x03 << EMMC_DMA_SEL_POS;
-    pub const EMMC_DMA_SEL: u8 = EMMC_DMA_SEL_MASK;
-    pub const EMMC_DMA_SEL_SDMA: u8 = 0 << EMMC_DMA_SEL_POS;
-    pub const EMMC_DMA_SEL_ADMA2: u8 = 2 << EMMC_DMA_SEL_POS;
-    pub const EMMC_DMA_SEL_ADMA2_3: u8 = 3 << EMMC_DMA_SEL_POS;
-    pub const EMMC_EXT_DAT_XFER_POS: u8 = 5;
-    pub const EMMC_EXT_DAT_XFER_MASK: u8 = 0x01 << EMMC_EXT_DAT_XFER_POS;
-    pub const EMMC_EXT_DAT_XFER: u8 = EMMC_EXT_DAT_XFER_MASK;
-    // pub const EMMC_CARD_DETECT_TEST_LVL_POS: u8 = 6;
-    // pub const EMMC_CARD_DETECT_TEST_LVL_MASK: u8 = 0x01 << EMMC_CARD_DETECT_TEST_LVL_POS;
-    // pub const EMMC_CARD_DETECT_TEST_LVL: u8 = EMMC_CARD_DETECT_TEST_LVL_MASK;
-    // pub const EMMC_CARD_DETECT_SIG_SEL_POS: u8 = 7;
-    // pub const EMMC_CARD_DETECT_SIG_SEL_MASK: u8 = 0x01 << EMMC_CARD_DETECT_SIG_SEL_POS;
-    // pub const EMMC_CARD_DETECT_SIG_SEL: u8 = EMMC_CARD_DETECT_SIG_SEL_MASK;
+
+pub mod emmc_ver_id_bits {
+    pub const EMMC_VER_ID_OFFSET: u64 = 0x500;
+
+    pub const EMMC_VER_ID_POS: u32 = 0;
+    pub const EMMC_VER_ID_MASK: u32 = 0xffffffff << EMMC_VER_ID_POS;
+    pub const EMMC_VER_ID: u32 = EMMC_VER_ID_MASK;
 }
 
 impl Reg {
-    pub fn emmc_enable_data_xfer_width_1bit(&self) {
-        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value & !emmc_host_ctrl1_bits::EMMC_DAT_XFER_WIDTH);
-    }
-
-    pub fn emmc_enable_data_xfer_width_4bit(&self) {
-        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value | emmc_host_ctrl1_bits::EMMC_DAT_XFER_WIDTH);
-    }
-
-    pub fn emmc_enable_high_speed(&self) {
-        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value | emmc_host_ctrl1_bits::EMMC_HIGH_SPEED_EN);
-    }
-
-    pub fn emmc_disable_high_speed(&self) {
-        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value & !emmc_host_ctrl1_bits::EMMC_HIGH_SPEED_EN);
-    }
-
-    pub fn emmc_select_dma(&self, dma_sel: u8) {
-        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, (value & !emmc_host_ctrl1_bits::EMMC_DMA_SEL_MASK) | dma_sel);
-    }
-
-    pub fn emmc_enable_ext_data_xfre(&self) {
-        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value | emmc_host_ctrl1_bits::EMMC_EXT_DAT_XFER);
-    }
-
-    pub fn emmc_disable_ext_data_xfre(&self) {
-        let addr = self.base_addr + emmc_host_ctrl1_bits::EMMC_HOST_CTRL1_OFFSET;
-        let value = self.read_reg8(addr);
-        self.write_reg8(addr, value & !emmc_host_ctrl1_bits::EMMC_EXT_DAT_XFER);
-    }
-
-}
-
-pub mod emmc_cmd_bits {
-    pub const EMMC_CMD_OFFSET: u64 = 0x0e;
-
-    pub const EMMC_RESP_TYPE_POS: u16 = 0;
-    pub const EMMC_RESP_TYPE_MASK: u16 = 0x03 << EMMC_RESP_TYPE_POS;
-    pub const EMMC_RESP_TYPE: u16 = EMMC_RESP_TYPE_MASK;
-    pub const EMMC_RESP_TYPE_NONE: u16 = 0x00 << EMMC_RESP_TYPE_POS;
-    pub const EMMC_RESP_TYPE_LEN_136: u16 = 0x01 << EMMC_RESP_TYPE_POS;
-    pub const EMMC_RESP_TYPE_LEN_48: u16 = 0x02 << EMMC_RESP_TYPE_POS;
-    pub const EMMC_RESP_TYPE_LEN_48_CHECK: u16 = 0x03 << EMMC_RESP_TYPE_POS;
-    pub const EMMC_SUB_CMD_POS: u16 = 2;
-    pub const EMMC_SUB_CMD_MASK: u16 = 0x01 << EMMC_SUB_CMD_POS;
-    pub const EMMC_SUB_CMD: u16 = EMMC_SUB_CMD_MASK;
-    pub const EMMC_CMD_CRC_CHK_POS: u16 = 3;
-    pub const EMMC_CMD_CRC_CHK_MASK: u16 = 0x01 << EMMC_CMD_CRC_CHK_POS;
-    pub const EMMC_CMD_CRC_CHK: u16 = EMMC_CMD_CRC_CHK_MASK;
-    pub const EMMC_CMD_IDX_CHK_POS: u16 = 4;
-    pub const EMMC_CMD_IDX_CHK_MASK: u16 = 0x01 << EMMC_CMD_IDX_CHK_POS;
-    pub const EMMC_CMD_IDX_CHK: u16 = EMMC_CMD_IDX_CHK_MASK;
-    pub const EMMC_DATA_PRESENT_POS: u16 = 5;
-    pub const EMMC_DATA_PRESENT_MASK: u16 = 0x01 << EMMC_DATA_PRESENT_POS;
-    pub const EMMC_DATA_PRESENT: u16 = EMMC_DATA_PRESENT_MASK;
-    pub const EMMC_CMD_TYPE_POS: u16 = 6;
-    pub const EMMC_CMD_TYPE_MASK: u16 = 0x03 << EMMC_CMD_TYPE_POS;
-    pub const EMMC_CMD_TYPE: u16 = EMMC_CMD_TYPE_MASK;
-    pub const EMMC_CMD_TYPE_NORMAL: u16 = 0x00 << EMMC_CMD_TYPE_POS;
-    pub const EMMC_CMD_TYPE_SUSPEND: u16 = 0x01 << EMMC_CMD_TYPE_POS;
-    pub const EMMC_CMD_TYPE_RESUME: u16 = 0x02 << EMMC_CMD_TYPE_POS;
-    pub const EMMC_CMD_TYPE_ABORT: u16 = 0x03 << EMMC_CMD_TYPE_POS;
-    pub const EMMC_CMD_INDEX_POS: u16 = 8;
-    pub const EMMC_CMD_INDEX_MASK: u16 = 0x3f << EMMC_CMD_INDEX_POS;
-    pub const EMMC_CMD_INDEX: u16 = EMMC_CMD_INDEX_MASK;
-}
-
-impl Reg {
-    pub fn emmc_set_cmd(&self, cmd: u16) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        self.write_reg16(addr, cmd);
-    }
-
-    pub fn emmc_set_resp_type(&self, resp_type: u16) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, (value & emmc_cmd_bits::EMMC_RESP_TYPE_MASK) | resp_type);
-    }
-
-    pub fn emmc_enable_sub_cmd(&self) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value | emmc_cmd_bits::EMMC_SUB_CMD);
-    }
-
-    pub fn emmc_disable_sub_cmd(&self) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_SUB_CMD);
-    }
-
-    pub fn emmc_enable_cmd_crc_check(&self) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value | emmc_cmd_bits::EMMC_CMD_CRC_CHK);
-    }
-
-    pub fn emmc_disable_cmd_crc_check(&self) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_CMD_CRC_CHK);
-    }
-
-    pub fn emmc_enable_cmd_idx_check(&self) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value | emmc_cmd_bits::EMMC_CMD_IDX_CHK);
-    }
-
-    pub fn emmc_disable_cmd_idx_check(&self) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_CMD_IDX_CHK);
-    }
-
-    pub fn emmc_enable_data_present(&self) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value | emmc_cmd_bits::EMMC_DATA_PRESENT);
-    }
-
-    pub fn emmc_disable_data_present(&self) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_DATA_PRESENT);
-    }
-
-    pub fn emmc_set_cmd_type(&self, cmd_type: u16) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, (value & emmc_cmd_bits::EMMC_RESP_TYPE_MASK) | cmd_type);
-    }
-
-    pub fn emmc_set_cmd_index(&self, cmd_idx: u16) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, (value & emmc_cmd_bits::EMMC_CMD_INDEX_MASK) | cmd_idx);
-    }
-}
-
-pub mod emmc_argument_bits {
-    pub const EMMC_ARGUMENT_OFFSET: u64 = 0x08;
-
-    pub const EMMC_ARGUMENT_POS: u32 = 0;
-    pub const EMMC_ARGUMENT_MASK: u32 = 0xffffffff << EMMC_ARGUMENT_POS;
-    pub const EMMC_ARGUMENT: u32 = EMMC_ARGUMENT_MASK;
-}
-
-impl Reg {
-    pub fn emmc_set_argument(&self, arg: u32) {
-        let addr = self.base_addr + emmc_argument_bits::EMMC_ARGUMENT_OFFSET;
-        self.write_reg(addr, arg);
-    }
-}
-
-pub mod emmc_resp01_bits {
-    pub const EMMC_RESP01_OFFSET: u64 = 0x10;
-
-    pub const EMMC_RESP01_POS: u32 = 0;
-    pub const EMMC_RESP01_MASK: u32 = 0x0ffffffff << EMMC_RESP01_POS;
-    pub const EMMC_RESP01: u32 = EMMC_RESP01_MASK;
-}
-
-impl Reg {
-    pub fn emmc_get_resp01(&self) -> u32 {
-        let addr = self.base_addr + emmc_resp01_bits::EMMC_RESP01_OFFSET;
+    pub fn emmc_get_ver_id(&self) -> u32 {
+        let addr = self.base_addr + emmc_ver_id_bits::EMMC_VER_ID_OFFSET;
         self.read_reg(addr)
     }
 }
 
-pub mod emmc_resp23_bits {
-    pub const EMMC_RESP23_OFFSET: u64 = 0x14;
+pub mod emmc_ver_type_bits {
+    pub const EMMC_VER_TYPE_OFFSET: u64 = 0x504;
 
-    pub const EMMC_RESP23_POS: u32 = 0;
-    pub const EMMC_RESP23_MASK: u32 = 0x0ffffffff << EMMC_RESP23_POS;
-    pub const EMMC_RESP23: u32 = EMMC_RESP23_MASK;
+    pub const EMMC_VER_TYPE_POS: u32 = 0;
+    pub const EMMC_VER_TYPE_MASK: u32 = 0xffffffff << EMMC_VER_TYPE_POS;
+    pub const EMMC_VER_TYPE: u32 = EMMC_VER_TYPE_MASK;
 }
 
 impl Reg {
-    pub fn emmc_get_resp23(&self) -> u32 {
-        let addr = self.base_addr + emmc_resp23_bits::EMMC_RESP23_OFFSET;
+    pub fn emmc_get_ver_type(&self) -> u32 {
+        let addr = self.base_addr + emmc_ver_type_bits::EMMC_VER_TYPE_OFFSET;
         self.read_reg(addr)
     }
 }
 
-pub mod emmc_resp45_bits {
-    pub const EMMC_RESP45_OFFSET: u64 = 0x14;
+pub mod emmc_host_ctrl3_bits {
+    pub const EMMC_HOST_CTRL3_OFFSET: u64 = 0x508;
 
-    pub const EMMC_RESP45_POS: u32 = 0;
-    pub const EMMC_RESP45_MASK: u32 = 0x0ffffffff << EMMC_RESP45_POS;
-    pub const EMMC_RESP45: u32 = EMMC_RESP45_MASK;
+    pub const EMMC_CMD_CONFLICT_CHECK_POS: u8 = 0;
+    pub const EMMC_CMD_CONFLICT_CHECK_MASK: u8 = 0x01 << EMMC_CMD_CONFLICT_CHECK_POS;
+    pub const EMMC_CMD_CONFLICT_CHECK: u8 = EMMC_CMD_CONFLICT_CHECK_MASK;
+    pub const EMMC_SW_CG_DIS_POS: u8 = 4;
+    pub const EMMC_SW_CG_DIS_MASK: u8 = 0x01 << EMMC_SW_CG_DIS_POS;
+    pub const EMMC_SW_CG_DIS: u8 = EMMC_SW_CG_DIS_MASK;
 }
 
 impl Reg {
-    pub fn emmc_get_resp45(&self) -> u32 {
-        let addr = self.base_addr + emmc_resp45_bits::EMMC_RESP45_OFFSET;
-        self.read_reg(addr)
+    pub fn emmc_set_host_ctrl3(&self, host_ctrl3: u8) {
+        let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
+        self.write_reg8(addr, host_ctrl3);
+    }
+
+    pub fn emmc_get_host_ctrl3(&self) -> u8 {
+        let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
+        self.read_reg8(addr)
+    }
+
+    pub fn emmc_enable_cmd_conflict_check(&self) {
+        let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value | emmc_host_ctrl3_bits::EMMC_CMD_CONFLICT_CHECK);
+    }
+
+    pub fn emmc_disable_cmd_conflict_check(&self) {
+        let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value & !emmc_host_ctrl3_bits::EMMC_CMD_CONFLICT_CHECK);
+    }
+
+    pub fn emmc_enable_internal_clock_gate(&self) {
+        let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value | emmc_host_ctrl3_bits::EMMC_SW_CG_DIS);
+    }
+
+    pub fn emmc_disable_internal_clock_gate(&self) {
+        let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
+        let value = self.read_reg8(addr);
+        self.write_reg8(addr, value & !emmc_host_ctrl3_bits::EMMC_SW_CG_DIS);
     }
 }
 
-pub mod emmc_resp67_bits {
-    pub const EMMC_RESP67_OFFSET: u64 = 0x14;
-
-    pub const EMMC_RESP67_POS: u32 = 0;
-    pub const EMMC_RESP67_MASK: u32 = 0x0ffffffff << EMMC_RESP67_POS;
-    pub const EMMC_RESP67: u32 = EMMC_RESP67_MASK;
-}
-
-impl Reg {
-    pub fn emmc_get_resp67(&self) -> u32 {
-        let addr = self.base_addr + emmc_resp67_bits::EMMC_RESP67_OFFSET;
-        self.read_reg(addr)
-    }
-}
-
-pub mod emmc_clk_ctrl_bits {
-    pub const EMMC_CLK_CTRL_OFFSET: u64 = 0x2c;
-
-    pub const EMMC_INTERNAL_CLK_EN_POS: u16 = 0;
-    pub const EMMC_INTERNAL_CLK_EN_MASK: u16 = 0x01 << EMMC_INTERNAL_CLK_EN_POS;
-    pub const EMMC_INTERNAL_CLK_EN: u16 = EMMC_INTERNAL_CLK_EN_MASK;
-    pub const EMMC_INTERNAL_CLK_STABLE_POS: u16 = 1;
-    pub const EMMC_INTERNAL_CLK_STABLE_MASK: u16 = 0x01 << EMMC_INTERNAL_CLK_STABLE_POS;
-    pub const EMMC_INTERNAL_CLK_STABLE: u16 = EMMC_INTERNAL_CLK_STABLE_MASK;
-    pub const EMMC_SD_CLK_EN_POS: u16 = 2;
-    pub const EMMC_SD_CLK_EN_MASK: u16 = 0x01 << EMMC_SD_CLK_EN_POS;
-    pub const EMMC_SD_CLK_EN: u16 = EMMC_SD_CLK_EN_MASK;
-    pub const EMMC_CLK_GEN_TYPE_POS: u16 = 5;
-    pub const EMMC_CLK_GEN_TYPE_MASK: u16 = 0x01 << EMMC_CLK_GEN_TYPE_POS;
-    pub const EMMC_CLK_GEN_TYPE: u16 = EMMC_CLK_GEN_TYPE_MASK;
-    pub const EMMC_CLK_GEN_TYPE_PROG: u16 = 0x01 << EMMC_CLK_GEN_TYPE_POS;
-    pub const EMMC_CLK_GEN_TYPE_DIV: u16 = 0x00;
-    pub const EMMC_UPPER_FREQ_POS: u16 = 6;
-    pub const EMMC_UPPER_FREQ_MASK: u16 = 0x03 << EMMC_UPPER_FREQ_POS;
-    pub const EMMC_UPPER_FREQ: u16 = EMMC_UPPER_FREQ_MASK;
-    pub const EMMC_FREQ_POS: u16 = 8;
-    pub const EMMC_FREQ_MASK: u16 = 0xff << EMMC_FREQ_POS;
-    pub const EMMC_FREQ: u16 = EMMC_FREQ_MASK;
-}
-
-impl Reg {
-    pub fn emmc_set_clk_ctrl(&self, clk_ctrl: u16) {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        self.write_reg16(addr, clk_ctrl);
-    }
-
-    pub fn emmc_get_clk_ctrl(&self) -> u16 {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        self.read_reg16(addr)
-    }
-
-    pub fn emmc_enable_internal_clk(&self) {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value | emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_EN);
-    }
-
-    pub fn emmc_disable_internal_clk(&self) {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value & !emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_EN);
-    }
-
-    pub fn emmc_internal_clk_is_stable(&self) -> bool {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        (self.read_reg16(addr) & emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_STABLE) == emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_STABLE
-    }
-
-    pub fn emmc_enable_sd_clk(&self) {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value | emmc_clk_ctrl_bits::EMMC_SD_CLK_EN);
-    }
-
-    pub fn emmc_disable_sd_clk(&self) {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value & !emmc_clk_ctrl_bits::EMMC_SD_CLK_EN);
-    }
-
-    pub fn emmc_set_clk_gen_type(&self, clk_gen_type: u16) {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, (value & !emmc_clk_ctrl_bits::EMMC_CLK_GEN_TYPE_MASK) | clk_gen_type);
-    }
-
-    pub fn emmc_set_freq(&self, freq: u16) {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        let value = self.read_reg16(addr);
-        self.write_reg16(addr, value & !(emmc_clk_ctrl_bits::EMMC_FREQ_MASK | emmc_clk_ctrl_bits::EMMC_UPPER_FREQ_MASK) 
-                                | ((freq & 0xff) << emmc_clk_ctrl_bits::EMMC_FREQ_POS) 
-                                | (((freq & 0x300) >> emmc_clk_ctrl_bits::EMMC_FREQ_POS) << emmc_clk_ctrl_bits::EMMC_UPPER_FREQ_POS));
-    }
-}
-
-
-
-
-
+/* TODO
+ *
+ * EMMC_EMMC_CTRL 0x052C HW 0x0000000C EMMC Control Register 
+ * EMMC_BOOT_CTRL 0x052E HW 0x00000000 Boot Control Register 
+ * EMMC_AT_CTRL 0x0540 W 0x00000000 Boot Control Register 
+ * EMMC_AT_STAT 
+*/
 
 
 pub mod emmc_dll_ctrl_bits {
@@ -1261,4 +1362,3 @@ impl Reg {
         (self.read_reg(addr) & emmc_dll_status1_bits::EMMC_STRBIN_DELAY_VALUE) >> emmc_dll_status1_bits::EMMC_STRBIN_DELAY_VALUE_POS
     }
 }
-

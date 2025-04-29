@@ -42,9 +42,16 @@ impl SDHCI {
         self.reg.emmc_enable_data_xfer_width_1bit();
 
         self.reg.emmc_set_dll_ctrl(0);
+
+        info!("DWCMSHC_EMMC_DLL_CTRL: {:#x}", self.reg.emmc_get_dll_ctrl());
+        info!("DWCMSHC_EMMC_DLL_RXCLK: {:#x}", self.reg.emmc_get_dll_rxclk());
+        info!("DWCMSHC_EMMC_DLL_TXCLK: {:#x}", self.reg.emmc_get_dll_txclk());
         self.reg.emmc_set_dll_ctrl(EMMC_DLL_START | EMMC_DLL_BYPASS);
-
-
+        self.reg.emmc_set_dll_rxclk(1 << 31);
+        self.reg.emmc_set_dll_txclk(0);
+        info!("DWCMSHC_EMMC_DLL_CTRL: {:#x}", self.reg.emmc_get_dll_ctrl());
+        info!("DWCMSHC_EMMC_DLL_RXCLK: {:#x}", self.reg.emmc_get_dll_rxclk());
+        info!("DWCMSHC_EMMC_DLL_TXCLK: {:#x}", self.reg.emmc_get_dll_txclk());
 
         self.reg.emmc_enable_internal_clk();
         while !self.reg.emmc_internal_clk_is_stable() {
