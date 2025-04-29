@@ -9,7 +9,7 @@ aarch64-cpu = "10.0"
 kspin = "0.1"
 log = "0.4"
 bare-test = "0.4.1"
-rk3568_clk = { git = "https://github.com/ZCShou/rk3568_clk.git" }
+rk3568_clk = { git = "https://github.com/arceos-hypervisor/rk3568_clk.git" }
 
 [dev-dependencies]
 bare-test = "0.4.1"
