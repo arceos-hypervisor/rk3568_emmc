@@ -426,6 +426,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "rk3568_clk"
+version = "0.1.0"
+source = "git+https://github.com/ZCShou/rk3568_clk.git#598101a41d6e570e4842cc79021ae9c6f79aed07"
+dependencies = [
+ "aarch64-cpu",
+ "bare-test",
+ "bare-test-macros",
+ "fdt-parser",
+ "kspin",
+ "log",
+]
+
+[[package]]
 name = "rk3568_emmc"
 version = "0.1.0"
 dependencies = [
@@ -436,6 +449,7 @@ dependencies = [
  "fdt-parser",
  "kspin",
  "log",
+ "rk3568_clk",
 ]
 
 [[package]]

@@ -1,8 +1,8 @@
 use log::info;
+use rk3568_clk::cru::CRU;
+use rk3568_clk::cru::cru_clksel_con28_bits::{*};
 
 use crate::delay_us;
-use crate::cru::CRU;
-use crate::cru::cru_clksel_con28_bits::{*};
 use crate::sdhci_reg::Reg;
 use crate::sdhci_reg::emmc_cmd_bits::{*};
 use crate::sdhci_reg::emmc_normal_int_en_bits::{*};

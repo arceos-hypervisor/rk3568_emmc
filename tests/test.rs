@@ -8,7 +8,7 @@ extern crate alloc;
 mod tests {
     use bare_test::{globals::{global_val, PlatformInfoKind}, mem::iomap, println};
     use log::info;
-    use rk3568_clk::sdhci::SDHCI;
+    use rk3568_emmc::sdhci::SDHCI;
 
     #[test]
     fn test_platform() {
