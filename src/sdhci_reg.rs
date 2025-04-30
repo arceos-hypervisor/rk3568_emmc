@@ -51,7 +51,7 @@ pub mod emmc_argument_bits {
     pub const EMMC_ARGUMENT: u32 = EMMC_ARGUMENT_MASK;
 }
 
-/// This module implements read and wirite operations for the `EMMC_ARGUMENT` register itself as well as its individual bits.
+/// This module implements read and write operations for the `EMMC_ARGUMENT` register itself as well as its individual bits.
 /// - The definition of the bit is in the `emmc_argument_bits` module.
 impl Reg {
     /// Return the entire value of the `EMMC_ARGUMENT` register.
@@ -93,7 +93,7 @@ impl Reg {
 /// This module contains the offset position of the `EMMC_CMD` register and the definitions of its individual bits.
 /// The `EMMC_CMD` register is a 32-bit read-write register that contains the command.
 pub mod emmc_cmd_bits {
-    /// the offset of the `EMMC_ADMA_ID` register from the base address of the SDHCI controller.
+    /// the offset of the `EMMC_CMD` register from the base address of the SDHCI controller.
     pub const EMMC_CMD_OFFSET: u64 = 0x0e;
     /// Response Type Select
     pub const EMMC_RESP_TYPE_POS: u16 = 0;
@@ -133,7 +133,7 @@ pub mod emmc_cmd_bits {
     pub const EMMC_CMD_INDEX: u16 = EMMC_CMD_INDEX_MASK;
 }
 
-/// This module implements read and wirite operations for the `EMMC_CMD` register itself as well as its individual bits.
+/// This module implements read and write operations for the `EMMC_CMD` register itself as well as its individual bits.
 /// - The definition of the bit is in the `emmc_cmd_bits` module.
 impl Reg {
     /// Return the entire value of the `EMMC_CMD` register.
@@ -164,7 +164,7 @@ impl Reg {
         self.write_reg16(addr, cmd);
     }
 
-    /// Set the response yype.
+    /// Set the response type.
     ///
     /// # Arguments
     /// 
@@ -183,60 +183,184 @@ impl Reg {
         self.write_reg16(addr, (value & emmc_cmd_bits::EMMC_RESP_TYPE_MASK) | resp_type);
     }
 
+    /// Enable the sub command. By default, the main command is used.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_sub_cmd(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value | emmc_cmd_bits::EMMC_SUB_CMD);
     }
 
+    /// Disable the sub command. The main command is used.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_sub_cmd(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_SUB_CMD);
     }
 
+    /// Enable the command crc check.
+    ///
+    /// This bit enables the Host Controller to check the CRC field in the response. 
+    /// If an error is detected, it is reported as a Command CRC error. 
+    /// 
+    /// # Note
+    /// 
+    /// 1. CRC Check enable must be set to 0 for the command with no response, R3 response, and R4 response. 
+    /// 2. For the tuning command, this bit must always be set to 1 to enable the CRC check.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_cmd_crc_check(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value | emmc_cmd_bits::EMMC_CMD_CRC_CHK);
     }
 
+    /// Disable the command crc check.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_cmd_crc_check(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_CMD_CRC_CHK);
     }
 
+    /// Enable the command index check.
+    ///
+    /// This bit enables the Host Controller to check the index field in the 
+    /// response to verify if it has the same value as the command index. 
+    /// If the value is not the same, it is reported as a Command Index error. 
+    /// 
+    /// # Note
+    /// 
+    /// 1. Index Check enable must be set to 0 for the command with no response, R2 response, R3 response and R4 response. 
+    /// 2. For the tuning command, this bit must always be set to enable the index check.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_cmd_idx_check(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value | emmc_cmd_bits::EMMC_CMD_IDX_CHK);
     }
 
+    /// Disable the command index check.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_cmd_idx_check(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_CMD_IDX_CHK);
     }
 
+    /// Enable data present.
+    ///
+    /// This bit is set to 1 to indicate that data is present and that the 
+    /// data is transferred using the DAT line. 
+    /// 
+    /// # Note
+    /// 
+    /// This bit is set to 0 in the following instances: 
+    /// 1. Command using the CMD line 
+    /// 2. Command with no data transfer but using busy signal on the DAT[0] line 
+    /// 3. Resume Command
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_data_present(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value | emmc_cmd_bits::EMMC_DATA_PRESENT);
     }
 
+    /// Disable data present.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_data_present(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value & !emmc_cmd_bits::EMMC_DATA_PRESENT);
     }
 
+    /// Set the command type
+    ///
+    /// # Arguments
+    /// 
+    /// - `cmd_type` - The value to be written to the register. It is one of the following values defined in `emmc_cmd_bits`.
+    ///     - `EMMC_CMD_TYPE_NORMAL`
+    ///     - `EMMC_CMD_TYPE_SUSPEND`
+    ///     - `EMMC_CMD_TYPE_RESUME`
+    ///     - `EMMC_CMD_TYPE_ABORT`
+    /// 
+    ///  While issuing Abort CMD using CMD12/CMD52 or reset CMD using CMD0/CMD52, CMD_TYPE field shall be set to EMMC_CMD_TYPE_ABORT.
+    ///
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_set_cmd_type(&self, cmd_type: u16) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, (value & emmc_cmd_bits::EMMC_RESP_TYPE_MASK) | cmd_type);
     }
 
+    /// Set the command index
+    ///
+    /// # Arguments
+    /// 
+    /// - `cmd_idx` - The value to be written to the register. These bits are set to the command number that is specified in 
+    /// bits 45-40 of the Command Format.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_set_cmd_index(&self, cmd_idx: u16) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
@@ -436,21 +560,75 @@ impl Reg {
 
 }
 
+/// This module contains the offset position of the `EMMC_PWR_CTRL` register and the definitions of its individual bits.
+/// The `EMMC_PWR_CTRL` register is a 8-bit read-write register that contains the power related settings.
 pub mod emmc_pwr_ctrl_bits {
+    /// the offset of the `EMMC_PWR_CTRL` register from the base address of the SDHCI controller.
     pub const EMMC_PWR_CTRL_OFFSET: u64 = 0x29;
-
+    /// Power on/off
     pub const EMMC_PWR_ON_POS: u8 = 0;
     pub const EMMC_PWR_ON_MASK: u8 = 0x01 << EMMC_PWR_ON_POS;
     pub const EMMC_PWR_ON: u8 = EMMC_PWR_ON_MASK;
 }
 
+/// This module implements read and write operations for the `EMMC_PWR_CTRL` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_pwr_ctrl_bits` module.
 impl Reg {
+    /// Return the entire value of the `EMMC_PWR_CTRL` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00
+    pub fn emmc_get_pwr_ctrl(&self) -> u8 {
+        let addr = self.base_addr + emmc_pwr_ctrl_bits::EMMC_PWR_CTRL_OFFSET;
+        self.read_reg8(addr)
+    }
+
+    /// Set the entire value of the `EMMC_PWR_CTRL` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - `pwr_ctrl` - The value to be written to the register.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_pwr_ctrl(&self, pwr_ctrl: u8) {
+        let addr = self.base_addr + emmc_pwr_ctrl_bits::EMMC_PWR_CTRL_OFFSET;
+        self.write_reg8(addr, pwr_ctrl);
+    }
+
+    /// Power on
+    ///
+    /// If this bit is cleared, the Host Controller stops the SD Clock by 
+    /// clearing the SD_CLK_IN bit in the CLK_CTRL_R register.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_pwr_on(&self) {
         let addr = self.base_addr + emmc_pwr_ctrl_bits::EMMC_PWR_CTRL_OFFSET;
         let value = self.read_reg8(addr);
         self.write_reg8(addr, value | emmc_pwr_ctrl_bits::EMMC_PWR_ON);
     }
 
+    /// Power off
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_pwr_off(&self) {
         let addr = self.base_addr + emmc_pwr_ctrl_bits::EMMC_PWR_CTRL_OFFSET;
         let value = self.read_reg8(addr);
@@ -1033,7 +1211,7 @@ pub mod emmc_adma_id_bits {
     pub const EMMC_ADMA_ID: u32 = EMMC_ADMA_ID_MASK;
 }
 
-/// This module implements read and wirite operations for the `EMMC_ADMA_ID` register itself as well as its individual bits.
+/// This module implements read and write operations for the `EMMC_ADMA_ID` register itself as well as its individual bits.
 /// - The definition of the bit is in the `emmc_adma_id_bits` module.
 impl Reg {
     /// Return the entire value of the `EMMC_ADMA_ID` register.
