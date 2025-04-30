@@ -40,30 +40,62 @@ impl Reg {
     }
 }
 
-
+/// This module contains the offset position of the `EMMC_ARGUMENT` register and the definitions of its individual bits.
+/// The `EMMC_ARGUMENT` register is a 32-bit read-write register that contains the command argument.
 pub mod emmc_argument_bits {
+    /// the offset of the `EMMC_ADMA_ID` register from the base address of the SDHCI controller.
     pub const EMMC_ARGUMENT_OFFSET: u64 = 0x08;
-
+    /// Command Argument
     pub const EMMC_ARGUMENT_POS: u32 = 0;
     pub const EMMC_ARGUMENT_MASK: u32 = 0xffffffff << EMMC_ARGUMENT_POS;
     pub const EMMC_ARGUMENT: u32 = EMMC_ARGUMENT_MASK;
 }
 
+/// This module implements read and wirite operations for the `EMMC_ARGUMENT` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_argument_bits` module.
 impl Reg {
+    /// Return the entire value of the `EMMC_ARGUMENT` register.
+    ///
+    /// These bits specify the SD/eMMC command argument that is 
+    /// specified in bits 39-8 of the Command format.
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00000000
+    pub fn emmc_get_argument(&self) -> u32 {
+        let addr = self.base_addr + emmc_argument_bits::EMMC_ARGUMENT_OFFSET;
+        self.read_reg(addr)
+    }
+
+    /// Set the entire value of the `EMMC_ARGUMENT` register.
+    ///
+    /// These bits specify the SD/eMMC command argument that is 
+    /// specified in bits 39-8 of the Command format.
+    /// 
+    /// # Arguments
+    /// 
+    /// - `arg` - The value to be written to the register.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_set_argument(&self, arg: u32) {
         let addr = self.base_addr + emmc_argument_bits::EMMC_ARGUMENT_OFFSET;
         self.write_reg(addr, arg);
     }
 
-    pub fn emmc_get_argument(&self) -> u32 {
-        let addr = self.base_addr + emmc_argument_bits::EMMC_ARGUMENT_OFFSET;
-        self.read_reg(addr)
-    }
 }
 
+/// This module contains the offset position of the `EMMC_CMD` register and the definitions of its individual bits.
+/// The `EMMC_CMD` register is a 32-bit read-write register that contains the command.
 pub mod emmc_cmd_bits {
+    /// the offset of the `EMMC_ADMA_ID` register from the base address of the SDHCI controller.
     pub const EMMC_CMD_OFFSET: u64 = 0x0e;
-
+    /// Response Type Select
     pub const EMMC_RESP_TYPE_POS: u16 = 0;
     pub const EMMC_RESP_TYPE_MASK: u16 = 0x03 << EMMC_RESP_TYPE_POS;
     pub const EMMC_RESP_TYPE: u16 = EMMC_RESP_TYPE_MASK;
@@ -71,18 +103,23 @@ pub mod emmc_cmd_bits {
     pub const EMMC_RESP_TYPE_LEN_136: u16 = 0x01 << EMMC_RESP_TYPE_POS;
     pub const EMMC_RESP_TYPE_LEN_48: u16 = 0x02 << EMMC_RESP_TYPE_POS;
     pub const EMMC_RESP_TYPE_LEN_48_CHECK: u16 = 0x03 << EMMC_RESP_TYPE_POS;
+    /// Sub Command Flag
     pub const EMMC_SUB_CMD_POS: u16 = 2;
     pub const EMMC_SUB_CMD_MASK: u16 = 0x01 << EMMC_SUB_CMD_POS;
     pub const EMMC_SUB_CMD: u16 = EMMC_SUB_CMD_MASK;
+    /// Command CRC Check Enable
     pub const EMMC_CMD_CRC_CHK_POS: u16 = 3;
     pub const EMMC_CMD_CRC_CHK_MASK: u16 = 0x01 << EMMC_CMD_CRC_CHK_POS;
     pub const EMMC_CMD_CRC_CHK: u16 = EMMC_CMD_CRC_CHK_MASK;
+    /// Command Index Check Enable
     pub const EMMC_CMD_IDX_CHK_POS: u16 = 4;
     pub const EMMC_CMD_IDX_CHK_MASK: u16 = 0x01 << EMMC_CMD_IDX_CHK_POS;
     pub const EMMC_CMD_IDX_CHK: u16 = EMMC_CMD_IDX_CHK_MASK;
+    /// Data Present Select
     pub const EMMC_DATA_PRESENT_POS: u16 = 5;
     pub const EMMC_DATA_PRESENT_MASK: u16 = 0x01 << EMMC_DATA_PRESENT_POS;
     pub const EMMC_DATA_PRESENT: u16 = EMMC_DATA_PRESENT_MASK;
+    /// Command Type
     pub const EMMC_CMD_TYPE_POS: u16 = 6;
     pub const EMMC_CMD_TYPE_MASK: u16 = 0x03 << EMMC_CMD_TYPE_POS;
     pub const EMMC_CMD_TYPE: u16 = EMMC_CMD_TYPE_MASK;
@@ -90,22 +127,56 @@ pub mod emmc_cmd_bits {
     pub const EMMC_CMD_TYPE_SUSPEND: u16 = 0x01 << EMMC_CMD_TYPE_POS;
     pub const EMMC_CMD_TYPE_RESUME: u16 = 0x02 << EMMC_CMD_TYPE_POS;
     pub const EMMC_CMD_TYPE_ABORT: u16 = 0x03 << EMMC_CMD_TYPE_POS;
+    /// Command Index
     pub const EMMC_CMD_INDEX_POS: u16 = 8;
     pub const EMMC_CMD_INDEX_MASK: u16 = 0x3f << EMMC_CMD_INDEX_POS;
     pub const EMMC_CMD_INDEX: u16 = EMMC_CMD_INDEX_MASK;
 }
 
+/// This module implements read and wirite operations for the `EMMC_CMD` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_cmd_bits` module.
 impl Reg {
-    pub fn emmc_set_cmd(&self, cmd: u16) {
-        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
-        self.write_reg16(addr, cmd);
-    }
-    
+    /// Return the entire value of the `EMMC_CMD` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00000000
     pub fn emmc_get_cmd(&self) -> u16 {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         self.read_reg16(addr)
     }
 
+    /// Set the entire value of the `EMMC_CMD` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - `cmd` - The value to be written to the register. It is a combination of individual bits defined in `emmc_cmd_bits`.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_cmd(&self, cmd: u16) {
+        let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
+        self.write_reg16(addr, cmd);
+    }
+
+    /// Set the response yype.
+    ///
+    /// # Arguments
+    /// 
+    /// - `resp_type` - The value to be written to the register. It is one of the following value defined in `emmc_cmd_bits`.
+    ///     - EMMC_RESP_TYPE_NONE
+    ///     - EMMC_RESP_TYPE_LEN_136
+    ///     - EMMC_RESP_TYPE_LEN_48
+    ///     - EMMC_RESP_TYPE_LEN_48_CHECK
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_set_resp_type(&self, resp_type: u16) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
@@ -954,8 +1025,9 @@ impl Reg {
 /// This module contains the offset position of the `EMMC_ADMA_ID` register and the definitions of its individual bits.
 /// The `EMMC_ADMA_ID` register is a 32-bit read-write register that contains the ADMA integrated descriptor address.
 pub mod emmc_adma_id_bits {
+    /// the offset of the `EMMC_ADMA_ID` register from the base address of the SDHCI controller.
     pub const EMMC_ADMA_ID_OFFSET: u64 = 0x78;
-
+    /// ADMA Integrated Descriptor Address
     pub const EMMC_ADMA_ID_POS: u32 = 0;
     pub const EMMC_ADMA_ID_MASK: u32 = 0xffffffff << EMMC_ADMA_ID_POS;
     pub const EMMC_ADMA_ID: u32 = EMMC_ADMA_ID_MASK;
@@ -1001,8 +1073,9 @@ impl Reg {
 /// This module contains the offset position of the `EMMC_SLOT_INTR_STATUS` register and the definitions of its individual bits.
 /// The `EMMC_SLOT_INTR_STATUS` register is a 8-bit read-only register that contains the interrupt signal for each slot.
 pub mod emmc_slot_int_status_bits {
+    /// the offset of the `EMMC_SLOT_INTR_STATUS` register from the base address of the SDHCI controller.
     pub const EMMC_SLOT_INT_STATUS_OFFSET: u64 = 0xfc;
-
+    /// Interrupt Signal for Each Slot
     pub const EMMC_INTR_SLOT_POS: u8 = 0;
     pub const EMMC_INTR_SLOT_MASK: u8 = 0xff << EMMC_INTR_SLOT_POS;
     pub const EMMC_INTR_SLOT: u8 = EMMC_INTR_SLOT_MASK;
@@ -1031,8 +1104,9 @@ impl Reg {
 /// This module contains the offset position of the `EMMC_HOST_CNTRL_VERS` register and the definitions of its individual bits.
 /// The `EMMC_HOST_CNTRL_VERS` register is a 16-bit read-only register that contains the specification version number and the vendor version number.
 pub mod emmc_host_ctrl_ver_bits {
+    /// the offset of the `EMMC_HOST_CNTRL_VERS` register from the base address of the SDHCI controller.
     pub const EMMC_HOST_CTRL_VER_OFFSET: u64 = 0xfe;
-
+    /// Specification Version Number
     pub const EMMC_SPEC_VERSION_POS: u16 = 0;
     pub const EMMC_SPEC_VERSION_MASK: u16 = 0xff << EMMC_SPEC_VERSION_POS;
     pub const EMMC_SPEC_VERSION: u16 = EMMC_SPEC_VERSION_MASK;
@@ -1042,6 +1116,7 @@ pub mod emmc_host_ctrl_ver_bits {
     pub const EMMC_SPEC_VERSION_V400: u16 = 0x03 << EMMC_SPEC_VERSION_POS;
     pub const EMMC_SPEC_VERSION_V410: u16 = 0x04 << EMMC_SPEC_VERSION_POS;
     pub const EMMC_SPEC_VERSION_V420: u16 = 0x05 << EMMC_SPEC_VERSION_POS;
+    /// Vendor Version Number
     pub const EMMC_VENDOR_VERSION_POS: u16 = 8;
     pub const EMMC_VENDOR_VERSION_MASK: u16 = 0xff << EMMC_VENDOR_VERSION_POS;
     pub const EMMC_VENDOR_VERSION: u16 = EMMC_VENDOR_VERSION_MASK;
@@ -1108,8 +1183,9 @@ impl Reg {
 /// This module contains the offset position of the `EMMC_VER_ID` register and the definitions of its individual bits.
 /// The `EMMC_VER_ID` register is a 32-bit read-only register that contains the current version number.
 pub mod emmc_ver_id_bits {
+    /// the offset of the `EMMC_VER_ID` register from the base address of the SDHCI controller.
     pub const EMMC_VER_ID_OFFSET: u64 = 0x500;
-
+    /// version id
     pub const EMMC_VER_ID_POS: u32 = 0;
     pub const EMMC_VER_ID_MASK: u32 = 0xffffffff << EMMC_VER_ID_POS;
     pub const EMMC_VER_ID: u32 = EMMC_VER_ID_MASK;
@@ -1136,8 +1212,9 @@ impl Reg {
 /// This module contains the offset position of the `EMMC_VER_TYPE` register and the definitions of its individual bits.
 /// The `EMMC_VER_TYPE` register is a 32-bit read-only register that contains the current version type.
 pub mod emmc_ver_type_bits {
+    /// the offset of the `EMMC_VER_TYPE` register from the base address of the SDHCI controller.
     pub const EMMC_VER_TYPE_OFFSET: u64 = 0x504;
-
+    /// version type
     pub const EMMC_VER_TYPE_POS: u32 = 0;
     pub const EMMC_VER_TYPE_MASK: u32 = 0xffffffff << EMMC_VER_TYPE_POS;
     pub const EMMC_VER_TYPE: u32 = EMMC_VER_TYPE_MASK;
@@ -1164,11 +1241,13 @@ impl Reg {
 /// This module contains the offset position of the `EMMC_HOST_CTRL3` register and the definitions of its individual bits.
 /// The `EMMC_HOST_CTRL3` register is a 8-bit read-write register that contains some control setinggs for host.
 pub mod emmc_host_ctrl3_bits {
+    /// the offset of the `EMMC_HOST_CTRL3` register from the base address of the SDHCI controller.
     pub const EMMC_HOST_CTRL3_OFFSET: u64 = 0x508;
-
+    /// Command conflict check
     pub const EMMC_CMD_CONFLICT_CHECK_POS: u8 = 0;
     pub const EMMC_CMD_CONFLICT_CHECK_MASK: u8 = 0x01 << EMMC_CMD_CONFLICT_CHECK_POS;
     pub const EMMC_CMD_CONFLICT_CHECK: u8 = EMMC_CMD_CONFLICT_CHECK_MASK;
+    /// Internal clock gating disable control
     pub const EMMC_SW_CG_DIS_POS: u8 = 4;
     pub const EMMC_SW_CG_DIS_MASK: u8 = 0x01 << EMMC_SW_CG_DIS_POS;
     pub const EMMC_SW_CG_DIS: u8 = EMMC_SW_CG_DIS_MASK;
@@ -1205,7 +1284,7 @@ impl Reg {
         self.write_reg8(addr, host_ctrl3);
     }
 
-    /// Enable command conflict check.
+    /// Enable the check for command conflict after 1 card clock cycle
     ///
     /// Host Controller monitors the CMD line whenever a command is 
     /// issued and checks whether the value driven on sd_cmd_out 
@@ -1228,7 +1307,7 @@ impl Reg {
         self.write_reg8(addr, value | emmc_host_ctrl3_bits::EMMC_CMD_CONFLICT_CHECK);
     }
 
-    /// Disable command conflict check.
+    /// Disable command conflict check
     ///
     /// Host Controller monitors the CMD line whenever a command is 
     /// issued and checks whether the value driven on sd_cmd_out 
@@ -1251,7 +1330,7 @@ impl Reg {
         self.write_reg8(addr, value & !emmc_host_ctrl3_bits::EMMC_CMD_CONFLICT_CHECK);
     }
 
-    /// Enable internal clock gate.
+    /// Enable internal clock gate.Internal clock gates are active and clock gating is controlled internally
     ///
     /// This bit must be used to disable IP's internal clock gating when 
     /// required. when disabled clocks are not gated. Clocks to the core 
@@ -1270,7 +1349,7 @@ impl Reg {
         self.write_reg8(addr, value | emmc_host_ctrl3_bits::EMMC_SW_CG_DIS);
     }
 
-    /// Disable internal clock gate.
+    /// Disable internal clock gate.the clocks are not gated internally 
     ///
     /// This bit must be used to disable IP's internal clock gating when 
     /// required. when disabled clocks are not gated. Clocks to the core 
@@ -1302,20 +1381,25 @@ impl Reg {
 /// This module contains the offset position of the `EMMC_DLL_CTRL` register and the definitions of its individual bits.
 /// The `EMMC_DLL_CTRL` register is a 32-bit read-write register that contains some control setinggs for dll.
 pub mod emmc_dll_ctrl_bits {
+    /// Offset of the `EMMC_DLL_CTRL` register from the base address of the SDHCI controller.
     pub const EMMC_DLL_CTRL_OFFSET: u64 = 0x800;
-
+    /// DLL working indication
     pub const EMMC_DLL_START_POS: u32 = 0;
     pub const EMMC_DLL_START_MASK: u32 = 0x01 << EMMC_DLL_START_POS;
     pub const EMMC_DLL_START: u32 = EMMC_DLL_START_MASK;
+    /// DLL soft reset indication
     pub const EMMC_DLL_SRST_POS: u32 = 1;
     pub const EMMC_DLL_SRST_MASK: u32 = 0x01 << EMMC_DLL_SRST_POS;
     pub const EMMC_DLL_SRST: u32 = EMMC_DLL_SRST_MASK;
+    /// DLL increment value
     pub const EMMC_DLL_INCRMENT_POS: u32 = 8;
     pub const EMMC_DLL_INCRMENT_MASK: u32 = 0xff << EMMC_DLL_INCRMENT_POS;
     pub const EMMC_DLL_INCRMENT: u32 = EMMC_DLL_INCRMENT_MASK;
+    /// DLL start point for phase detect
     pub const EMMC_DLL_START_POINT_POS: u32 = 16;
     pub const EMMC_DLL_START_POINT_MASK: u32 = 0xff << EMMC_DLL_START_POINT_POS;
     pub const EMMC_DLL_START_POINT: u32 = EMMC_DLL_START_POINT_MASK;
+    /// DLL bypass mode select.
     pub const EMMC_DLL_BYPASS_POS: u32 = 24;
     pub const EMMC_DLL_BYPASS_MASK: u32 = 0xff << EMMC_DLL_BYPASS_POS;
     pub const EMMC_DLL_BYPASS: u32 = EMMC_DLL_BYPASS_MASK;
@@ -1338,7 +1422,7 @@ impl Reg {
         self.read_reg(addr)
     }
 
-    /// Set the value of the `EMMC_DLL_CTRL` register.
+    /// Set the entire value of the `EMMC_DLL_CTRL` register.
     ///
     /// # Arguments
     /// 
@@ -1352,7 +1436,7 @@ impl Reg {
         self.write_reg(addr, dll_ctrl);
     }
 
-    /// Enable DLL start.
+    /// Enable DLL start by setting the `EMMC_DLL_START` bit to `1`.
     ///
     /// # Arguments
     /// 
@@ -1367,7 +1451,7 @@ impl Reg {
         self.write_reg(addr, value | emmc_dll_ctrl_bits::EMMC_DLL_START);
     }
 
-    /// Disable DLL start.
+    /// Disable DLL start by setting the `EMMC_DLL_START` bit to `0`
     ///
     /// # Arguments
     /// 
@@ -1382,7 +1466,7 @@ impl Reg {
         self.write_reg(addr, value & !emmc_dll_ctrl_bits::EMMC_DLL_START);
     }
 
-    /// Reset the DLL.
+    /// Reset the DLL by setting the `EMMC_DLL_SRST` bit to `1`.
     ///
     /// After the reset is completed, this bit will be cleared by hardware.
     /// 
@@ -1401,7 +1485,7 @@ impl Reg {
 
     /// Check the DLL resetting is finished or not.
     ///
-    /// After the reset is completed, this bit will be cleared by hardware.
+    /// After the reset is completed, the `EMMC_DLL_SRST` bit will be cleared by hardware.
     /// 
     /// # Arguments
     /// 
@@ -1445,7 +1529,7 @@ impl Reg {
         self.write_reg(addr, (value & !emmc_dll_ctrl_bits::EMMC_DLL_START_POINT_MASK) | ((dll_start_point as u32) << emmc_dll_ctrl_bits::EMMC_DLL_START_POINT_POS));
     }
 
-    /// Enable DLL bypass.
+    /// Enable DLL bypass by setting the `EMMC_DLL_BYPASS` bit to `1`.
     ///
     /// # Arguments
     /// 
@@ -1460,7 +1544,7 @@ impl Reg {
         self.write_reg(addr, value | emmc_dll_ctrl_bits::EMMC_DLL_BYPASS);
     }
 
-    /// Disable DLL bypass.
+    /// Disable DLL bypass by setting the `EMMC_DLL_BYPASS` bit to `0`.
     ///
     /// # Arguments
     /// 
