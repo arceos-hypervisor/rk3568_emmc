@@ -217,11 +217,6 @@ impl Reg {
     ///
     /// This bit enables the Host Controller to check the CRC field in the response. 
     /// If an error is detected, it is reported as a Command CRC error. 
-    /// 
-    /// # Note
-    /// 
-    /// 1. CRC Check enable must be set to 0 for the command with no response, R3 response, and R4 response. 
-    /// 2. For the tuning command, this bit must always be set to 1 to enable the CRC check.
     ///
     /// # Arguments
     /// 
@@ -230,6 +225,11 @@ impl Reg {
     /// # Returns
     /// 
     /// - None
+    /// 
+    /// # Note
+    /// 
+    /// 1. CRC Check enable must be set to 0 for the command with no response, R3 response, and R4 response. 
+    /// 2. For the tuning command, this bit must always be set to 1 to enable the CRC check.
     pub fn emmc_enable_cmd_crc_check(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
@@ -257,11 +257,6 @@ impl Reg {
     /// response to verify if it has the same value as the command index. 
     /// If the value is not the same, it is reported as a Command Index error. 
     /// 
-    /// # Note
-    /// 
-    /// 1. Index Check enable must be set to 0 for the command with no response, R2 response, R3 response and R4 response. 
-    /// 2. For the tuning command, this bit must always be set to enable the index check.
-    ///
     /// # Arguments
     /// 
     /// - None
@@ -269,6 +264,11 @@ impl Reg {
     /// # Returns
     /// 
     /// - None
+    /// 
+    /// # Note
+    /// 
+    /// 1. Index Check enable must be set to 0 for the command with no response, R2 response, R3 response and R4 response. 
+    /// 2. For the tuning command, this bit must always be set to enable the index check.
     pub fn emmc_enable_cmd_idx_check(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
@@ -295,13 +295,6 @@ impl Reg {
     /// This bit is set to 1 to indicate that data is present and that the 
     /// data is transferred using the DAT line. 
     /// 
-    /// # Note
-    /// 
-    /// This bit is set to 0 in the following instances: 
-    /// 1. Command using the CMD line 
-    /// 2. Command with no data transfer but using busy signal on the DAT[0] line 
-    /// 3. Resume Command
-    /// 
     /// # Arguments
     /// 
     /// - None
@@ -309,6 +302,13 @@ impl Reg {
     /// # Returns
     /// 
     /// - None
+    /// 
+    /// # Note
+    /// 
+    /// This bit is set to 0 in the following instances: 
+    /// 1. Command using the CMD line 
+    /// 2. Command with no data transfer but using busy signal on the `DAT[0]` line 
+    /// 3. Resume Command
     pub fn emmc_enable_data_present(&self) {
         let addr = self.base_addr + emmc_cmd_bits::EMMC_CMD_OFFSET;
         let value = self.read_reg16(addr);
