@@ -636,6 +636,8 @@ impl Reg {
     }
 }
 
+/// This module contains the offset position of the `EMMC_CLK_CTRL` register and the definitions of its individual bits.
+/// The `EMMC_CLK_CTRL` register is a 16-bit read-write register that contains the clock related settings.
 pub mod emmc_clk_ctrl_bits {
     pub const EMMC_CLK_CTRL_OFFSET: u64 = 0x2c;
 
@@ -661,52 +663,153 @@ pub mod emmc_clk_ctrl_bits {
     pub const EMMC_FREQ: u16 = EMMC_FREQ_MASK;
 }
 
+/// This module implements read and write operations for the `EMMC_CLK_CTRL` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_clk_ctrl_bits` module.
 impl Reg {
-    pub fn emmc_set_clk_ctrl(&self, clk_ctrl: u16) {
-        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
-        self.write_reg16(addr, clk_ctrl);
-    }
-
+    /// Return the entire value of the `EMMC_CLK_CTRL` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x0000
     pub fn emmc_get_clk_ctrl(&self) -> u16 {
         let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
         self.read_reg16(addr)
     }
 
+    /// Set the entire value of the `EMMC_CLK_CTRL` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - `pwr_ctrl` - The value to be written to the register. It is a combination of individual bits defined in `emmc_clk_ctrl_bits`.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_clk_ctrl(&self, clk_ctrl: u16) {
+        let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
+        self.write_reg16(addr, clk_ctrl);
+    }
+
+    /// Enable the internal clock
+    ///
+    /// The Host Controller must stop its internal clock to enter a very 
+    /// low power state. However, registers can still be read and written 
+    /// to. The value is reflected on the intclk_en signal. 
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    /// 
+    /// # Note
+    /// 
+    /// If this bit is not used to control the internal clock (base clock and 
+    /// master clock), it is recommended to set this bit to 1 .
     pub fn emmc_enable_internal_clk(&self) {
         let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value | emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_EN);
     }
 
+    /// Disable the internal clock
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_internal_clk(&self) {
         let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value & !emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_EN);
     }
 
+    /// Check the internal clock is stable or not
+    ///
+    /// This bit reflects the synchronized value of the 
+    /// intclk_stable signal after the Internal Clock Enable bit is set to 1 
+    /// and also reflects the synchronized value of the card_clk_stable 
+    /// signal after the PLL Enable bit is set to 1.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - true if the internal clock is stable
+    /// - false if the internal clock is not stable
     pub fn emmc_internal_clk_is_stable(&self) -> bool {
         let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
         (self.read_reg16(addr) & emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_STABLE) == emmc_clk_ctrl_bits::EMMC_INTERNAL_CLK_STABLE
     }
 
+    /// Enable the SD/eMMC clock
+    ///
+    /// This bit stops the SDCLK or RCLK when set to 0. The 
+    /// SDCLK/RCLK Frequency Select bit can be changed when this bit is set to 0.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_sd_clk(&self) {
         let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value | emmc_clk_ctrl_bits::EMMC_SD_CLK_EN);
     }
 
+    /// Disable the SD/eMMC clock
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_sd_clk(&self) {
         let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, value & !emmc_clk_ctrl_bits::EMMC_SD_CLK_EN);
     }
 
+    /// Set the clock generator
+    ///
+    /// # Arguments
+    /// 
+    /// - `clk_gen_type` - The clock generator type. It can be either `EMMC_CLK_GEN_TYPE_PROG` or `EMMC_CLK_GEN_TYPE_DIV`.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_set_clk_gen_type(&self, clk_gen_type: u16) {
         let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
         let value = self.read_reg16(addr);
         self.write_reg16(addr, (value & !emmc_clk_ctrl_bits::EMMC_CLK_GEN_TYPE_MASK) | clk_gen_type);
     }
 
+    /// Set the frequency
+    ///
+    /// # Arguments
+    /// 
+    /// - `freq` - the frequency to be set. It is a 9-bit value.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_set_freq(&self, freq: u16) {
         let addr = self.base_addr + emmc_clk_ctrl_bits::EMMC_CLK_CTRL_OFFSET;
         let value = self.read_reg16(addr);
@@ -716,6 +819,8 @@ impl Reg {
     }
 }
 
+/// This module contains the offset position of the `EMMC_SW_RST` register and the definitions of its individual bits.
+/// The `EMMC_SW_RST` register is a 8-bit read-write register that contains the reset related settings.
 pub mod emmc_sw_rst_bits {
     pub const EMMC_SW_RST_OFFSET: u64 = 0x2F;
 
@@ -730,41 +835,151 @@ pub mod emmc_sw_rst_bits {
     pub const EMMC_SW_RST_DATA: u8 = EMMC_SW_RST_DATA_MASK;
 }
 
+/// This module implements read and write operations for the `EMMC_SW_RST` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_sw_rst_bits` module.
 impl Reg {
+    /// Do software reset for all
+    ///
+    /// This reset affects the entire Host Controller except for the card 
+    /// detection circuit. During its initialization, the Host Driver sets this 
+    /// bit to 1 to reset the Host Controller. 
+    /// 
+    /// All registers are reset except the capabilities register. If this bit is set to 1, the Host Driver 
+    /// must issue reset command and reinitialize the card.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_reset_all(&self) {
         let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
         let value = self.read_reg8(addr);
         self.write_reg8(addr, value | emmc_sw_rst_bits::EMMC_SW_RST_ALL);
     }
 
+    /// Check the software reset is finished or not
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - true if the software reset is finished
+    /// - false if the software reset is not finished
     pub fn emmc_reset_all_is_finished(&self) -> bool {
         let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
         self.read_reg8(addr) & emmc_sw_rst_bits::EMMC_SW_RST_ALL == 0
     }
 
+    /// Do software reset for command line
+    ///
+    /// This bit resets only a part of the command circuit to be able to 
+    /// issue a command. This reset is effective only for a command 
+    /// issuing circuit (including response error statuses related to 
+    /// Command Inhibit (CMD) control) and does not affect the data 
+    /// transfer circuit. Host Controller can continue data transfer even 
+    /// after this reset is executed while handling subcommand-response errors.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    /// 
+    /// # Note
+    /// 
+    /// The following registers and bits are cleared by this bit: 
+    /// 1. Present State register - Command Inhibit (CMD) bit 
+    /// 2. Normal Interrupt Status register - Command Complete bit 
+    /// 3. Error Interrupt Status - Response error statuses related to Command Inhibit (CMD) bit 
     pub fn emmc_reset_cmd(&self) {
         let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
         let value = self.read_reg8(addr);
         self.write_reg8(addr, value | emmc_sw_rst_bits::EMMC_SW_RST_CMD);
     }
 
+    /// Check the command line reset is finished or not
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - true if the command line reset is finished
+    /// - false if the command line reset is not finished
     pub fn emmc_reset_cmd_is_finished(&self) -> bool {
         let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
         self.read_reg8(addr) & emmc_sw_rst_bits::EMMC_SW_RST_CMD == 0
     }
 
+    /// Do software reset for data line
+    ///
+    /// This bit is used in SD/eMMC mode and it resets only a part of the data circuit and the DMA circuit is also reset. 
+    ///
+    /// The following registers and bits are cleared by this bit:
+    /// 1. Buffer Data Port register: 
+    ///     - Buffer is cleared and initialized
+    /// 2. Present state register
+    ///     - Buffer Read Enable 
+    ///     - Buffer Write Enable 
+    ///     - Read Transfer Active 
+    ///     - Write Transfer Active 
+    ///     - DAT Line Active 
+    ///     - Command Inhibit (DAT)
+    /// 3. Block Gap Control register: 
+    ///     - Continue Request 
+    ///     - Stop At Block Gap Request
+    /// 4. Normal Interrupt status register: 
+    ///     - Buffer Read Ready 
+    ///     - Buffer Write Ready 
+    ///     - DMA Interrupt 
+    ///     - Block Gap Event 
+    ///     - Transfer Complete
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    /// 
+    /// # Note
+    /// 
+    /// The following registers and bits are cleared by this bit: 
+    /// 1. Present State register - Command Inhibit (CMD) bit 
+    /// 2. Normal Interrupt Status register - Command Complete bit 
+    /// 3. Error Interrupt Status - Response error statuses related to Command Inhibit (CMD) bit 
     pub fn emmc_reset_data(&self) {
         let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
         let value = self.read_reg8(addr);
         self.write_reg8(addr, value | emmc_sw_rst_bits::EMMC_SW_RST_DATA);
     }
 
+    /// Check the data line reset is finished or not
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - true if the data line reset is finished
+    /// - false if the data line reset is not finished
     pub fn emmc_reset_data_is_finished(&self) -> bool {
         let addr = self.base_addr + emmc_sw_rst_bits::EMMC_SW_RST_OFFSET;
         self.read_reg8(addr) & emmc_sw_rst_bits::EMMC_SW_RST_DATA == 0
     }
 }
 
+/// This module contains the offset position of the `EMMC_NORMAL_INT_STAT` register and the definitions of its individual bits.
+/// The `EMMC_NORMAL_INT_STAT` register is a 16-bit read-write register that contains some interrupt status.
 pub mod emmc_normal_int_stat_bits {
     pub const EMMC_NORMAL_INT_STAT_OFFSET: u64 = 0x30;
 
@@ -809,7 +1024,46 @@ pub mod emmc_normal_int_stat_bits {
     pub const EMMC_ERROR_INT: u16 = EMMC_ERROR_INT_MASK;
 }
 
+/// This module implements read and write operations for the `EMMC_NORMAL_INT_STAT` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_normal_int_stat_bits` module.
 impl Reg {
+    /// Return the entire value of the `EMMC_NORMAL_INT_STAT` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00
+    pub fn emmc_get_normal_int_stat(&self) -> u16 {
+        let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
+        self.read_reg16(addr)
+    }
+
+    /// Set the entire value of the `EMMC_NORMAL_INT_STAT` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - `normal_int_stat` - The value to be written to the register. It is a combination of individual bits defined in `emmc_normal_int_stat_bits`.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_normal_int_stat(&self, normal_int_stat: u16) {
+        let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
+        self.write_reg16(addr, normal_int_stat);
+    }
+
+    /// clear all the bits of the `EMMC_NORMAL_INT_STAT` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_clear_all_normal_int_flags(&self) {
         let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
         let mut value = self.read_reg16(addr);
@@ -825,21 +1079,71 @@ impl Reg {
         self.write_reg16(addr, value);
     }
 
+    /// Check the card interrput flag is actived or not.
+    ///
+    /// This bit reflects the synchronized value of `DAT[1]` Interrupt Input for SD Mode.
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - true if the card interrupt flag is actived.
+    /// - false if the card interrupt flag is not actived.
     pub fn emmc_card_interrupt_is_actived(&self) -> bool {
         let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
         self.read_reg16(addr) & emmc_normal_int_stat_bits::EMMC_CARD_INTERRUPT == emmc_normal_int_stat_bits::EMMC_CARD_INTERRUPT
     }
 
+    /// Check the re-tuning event flag is actived or not.
+    ///
+    /// This bit is set if the Re-Tuning Request changes from 0 to 1. Re-Tuning request is not supported
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - true if the re-tuning event flag is actived.
+    /// - false if the re-tuning event flag is not actived.
     pub fn emmc_re_tune_event_is_actived(&self) -> bool {
         let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
         self.read_reg16(addr) & emmc_normal_int_stat_bits::EMMC_RE_TUNE_EVENT == emmc_normal_int_stat_bits::EMMC_RE_TUNE_EVENT
     }
 
+    /// Check the FX event flag is actived or not.
+    ///
+    /// This status is set when `R[14]` of response register is set to 1 
+    /// and Response Type R1/R5 is set to 0 in Transfer Mode register. 
+    /// This interrupt is used with response check function. 
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - true if the FX event flag is actived.
+    /// - false if the FX event flag is not actived.
     pub fn emmc_fx_event_is_actived(&self) -> bool {
         let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
         self.read_reg16(addr) & emmc_normal_int_stat_bits::EMMC_FX_EVENT == emmc_normal_int_stat_bits::EMMC_FX_EVENT
     }
 
+    /// Check the error interrupt flag is actived or not.
+    ///
+    /// If any of the bits in the Error Interrupt Status register are set, then this bit is set. 
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - true if the error interrupt flag is actived.
+    /// - false if the error interrupt flag is not actived.
     pub fn emmc_error_int_is_actived(&self) -> bool {
         let addr = self.base_addr + emmc_normal_int_stat_bits::EMMC_NORMAL_INT_STAT_OFFSET;
         self.read_reg16(addr) & emmc_normal_int_stat_bits::EMMC_ERROR_INT == emmc_normal_int_stat_bits::EMMC_ERROR_INT

@@ -65,6 +65,9 @@ impl SDHCI {
         info!("DWCMSHC_EMMC_DLL_RXCLK: {:#x}", self.reg.emmc_get_dll_rxclk());
         info!("DWCMSHC_EMMC_DLL_TXCLK: {:#x}", self.reg.emmc_get_dll_txclk());
 
+        self.reg.emmc_disable_cmd_conflict_check();
+        info!("emmc_get_host_ctrl3: {:#x}", self.reg.emmc_get_host_ctrl3());
+
         self.reg.emmc_enable_internal_clk();
         while !self.reg.emmc_internal_clk_is_stable() {
             info!("emmc internal clk is not stable!");
@@ -72,6 +75,7 @@ impl SDHCI {
         self.reg.emmc_enable_sd_clk();
 
         info!("emmc enable sd clk: {:#x}", self.reg.emmc_get_clk_ctrl());
+        delay_us(10000);
 
         self.sdhci_send_cmd(0, 0, 0, 0); // CMD0
         info!("CMD0 response: {:#x}", self.reg.emmc_get_resp01());
@@ -98,5 +102,7 @@ impl SDHCI {
         info!("emmc set argument: {:#x}", arg);
         info!("emmc set cmd: {:#x}", idx << EMMC_CMD_INDEX_POS | ctype | resp_type);
         self.reg.emmc_set_cmd(idx << EMMC_CMD_INDEX_POS | ctype | resp_type);
+
+        info!("emmc cmd: {:#x}", self.reg.emmc_get_cmd());
     }
 }
