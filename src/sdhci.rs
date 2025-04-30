@@ -7,7 +7,7 @@ use crate::sdhci_reg::Reg;
 use crate::sdhci_reg::emmc_cmd_bits::{*};
 use crate::sdhci_reg::emmc_normal_int_en_bits::{*};
 use crate::sdhci_reg::emmc_dll_ctrl_bits::{*};
-use crate::sdhci_cmd::Cmd;
+// use crate::sdhci_cmd::Cmd;
 
 pub struct SDHCI {
     reg: Reg,
@@ -22,8 +22,20 @@ impl SDHCI {
     pub fn init(&self) {
         self.reg.emmc_reset_all();
 
+        while !self.reg.emmc_reset_all_is_finished() {
+            info!("emmc reset all is not finished!");
+        }
+
+        info!("emmc host version: {:#x}", self.reg.emmc_get_host_ctrl_ver());
+        info!("emmc spec version: {:#x}", self.reg.emmc_get_spec_version());
+        info!("emmc vendor version: {:#x}", self.reg.emmc_get_vendor_version());
+        info!("emmc version type: {:#x}", self.reg.emmc_get_ver_type());
+        info!("emmc version id: {:#x}", self.reg.emmc_get_ver_id());
+
         self.clk.cru_clksel_set_cclk_emmc(CRU_CLKSEL_CCLK_EMMC_SOC0_375K);
         info!("clock.cru_clksel_get_cclk_emmc(): {:#x}", self.clk.cru_clksel_get_cclk_emmc());
+
+
 
         self.reg.emmc_pwr_on();
 

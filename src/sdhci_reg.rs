@@ -948,10 +948,165 @@ impl Reg {
 
 /* TODO
  *
+ * offset 0x50 - 0x6e
+*/
+
+/// This module contains the offset position of the `EMMC_ADMA_ID` register and the definitions of its individual bits.
+/// The `EMMC_ADMA_ID` register is a 32-bit read-write register that contains the ADMA integrated descriptor address.
+pub mod emmc_adma_id_bits {
+    pub const EMMC_ADMA_ID_OFFSET: u64 = 0x78;
+
+    pub const EMMC_ADMA_ID_POS: u32 = 0;
+    pub const EMMC_ADMA_ID_MASK: u32 = 0xffffffff << EMMC_ADMA_ID_POS;
+    pub const EMMC_ADMA_ID: u32 = EMMC_ADMA_ID_MASK;
+}
+
+/// This module implements read and wirite operations for the `EMMC_ADMA_ID` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_adma_id_bits` module.
+impl Reg {
+    /// Return the entire value of the `EMMC_ADMA_ID` register.
+    ///
+    /// These bits indicate the 32-bit of the ADMA Integrated Descriptor 
+    /// address. The start address of Integrated Descriptor is set to these 
+    /// register bits. The ADMA3 fetches one Descriptor Address and 
+    /// increments these bits to indicate the next Descriptor address.
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00000000
+    pub fn emmc_get_adma_id(&self) -> u32{
+        let addr = self.base_addr + emmc_adma_id_bits::EMMC_ADMA_ID_OFFSET;
+        self.read_reg(addr)
+    }
+
+    /// Set the value of the `EMMC_ADMA_ID` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - `adma_id` - The value to be written to the register. The value should be in the range of 0x00000000 to 0xffffffff.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_adma_id(&self, adma_id: u32) {
+        let addr = self.base_addr + emmc_adma_id_bits::EMMC_ADMA_ID_OFFSET;
+        self.write_reg(addr, adma_id);
+    }
+}
+
+/// This module contains the offset position of the `EMMC_SLOT_INTR_STATUS` register and the definitions of its individual bits.
+/// The `EMMC_SLOT_INTR_STATUS` register is a 8-bit read-only register that contains the interrupt signal for each slot.
+pub mod emmc_slot_int_status_bits {
+    pub const EMMC_SLOT_INT_STATUS_OFFSET: u64 = 0xfc;
+
+    pub const EMMC_INTR_SLOT_POS: u8 = 0;
+    pub const EMMC_INTR_SLOT_MASK: u8 = 0xff << EMMC_INTR_SLOT_POS;
+    pub const EMMC_INTR_SLOT: u8 = EMMC_INTR_SLOT_MASK;
+}
+
+/// This module implements read operations for the `EMMC_SLOT_INTR_STATUS` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_slot_int_status_bits` module.
+impl Reg {
+    /// Return the entire value of the `EMMC_SLOT_INTR_STATUS` register. 
+    ///
+    /// Host Controller support single card slot. This register shall always return 0.
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00
+    pub fn emmc_get_slot_int_status(&self) -> u8{
+        let addr = self.base_addr + emmc_slot_int_status_bits::EMMC_SLOT_INT_STATUS_OFFSET;
+        self.read_reg8(addr)
+    }
+}
+
+/// This module contains the offset position of the `EMMC_HOST_CNTRL_VERS` register and the definitions of its individual bits.
+/// The `EMMC_HOST_CNTRL_VERS` register is a 16-bit read-only register that contains the specification version number and the vendor version number.
+pub mod emmc_host_ctrl_ver_bits {
+    pub const EMMC_HOST_CTRL_VER_OFFSET: u64 = 0xfe;
+
+    pub const EMMC_SPEC_VERSION_POS: u16 = 0;
+    pub const EMMC_SPEC_VERSION_MASK: u16 = 0xff << EMMC_SPEC_VERSION_POS;
+    pub const EMMC_SPEC_VERSION: u16 = EMMC_SPEC_VERSION_MASK;
+    pub const EMMC_SPEC_VERSION_V100: u16 = 0x00 << EMMC_SPEC_VERSION_POS;
+    pub const EMMC_SPEC_VERSION_V200: u16 = 0x01 << EMMC_SPEC_VERSION_POS;
+    pub const EMMC_SPEC_VERSION_V300: u16 = 0x02 << EMMC_SPEC_VERSION_POS;
+    pub const EMMC_SPEC_VERSION_V400: u16 = 0x03 << EMMC_SPEC_VERSION_POS;
+    pub const EMMC_SPEC_VERSION_V410: u16 = 0x04 << EMMC_SPEC_VERSION_POS;
+    pub const EMMC_SPEC_VERSION_V420: u16 = 0x05 << EMMC_SPEC_VERSION_POS;
+    pub const EMMC_VENDOR_VERSION_POS: u16 = 8;
+    pub const EMMC_VENDOR_VERSION_MASK: u16 = 0xff << EMMC_VENDOR_VERSION_POS;
+    pub const EMMC_VENDOR_VERSION: u16 = EMMC_VENDOR_VERSION_MASK;
+}
+
+/// This module implements read operations for the `EMMC_HOST_CNTRL_VERS` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_host_ctrl_ver_bits` module.
+impl Reg {
+    /// Return the entire value of the `EMMC_HOST_CNTRL_VERS` register. 
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x1005
+    /// 
+    pub fn emmc_get_host_ctrl_ver(&self) -> u16{
+        let addr = self.base_addr + emmc_host_ctrl_ver_bits::EMMC_HOST_CTRL_VER_OFFSET;
+        self.read_reg16(addr)
+    }
+
+    /// Returns the spec version.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// one of the following values defined in `emmc_host_ctrl_ver_bits`:
+    /// - `EMMC_SPEC_VERSION_V100`
+    /// - `EMMC_SPEC_VERSION_V200`
+    /// - `EMMC_SPEC_VERSION_V300`
+    /// - `EMMC_SPEC_VERSION_V400`
+    /// - `EMMC_SPEC_VERSION_V410`
+    /// - `EMMC_SPEC_VERSION_V420`
+    pub fn emmc_get_spec_version(&self) -> u16 {
+        let addr = self.base_addr + emmc_host_ctrl_ver_bits::EMMC_HOST_CTRL_VER_OFFSET;
+        (self.read_reg16(addr) & emmc_host_ctrl_ver_bits::EMMC_SPEC_VERSION) >> emmc_host_ctrl_ver_bits::EMMC_SPEC_VERSION_POS
+    }
+
+    /// returns the vendor version
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - the vendor version read from the register.
+    pub fn emmc_get_vendor_version(&self) -> u16 {
+        let addr = self.base_addr + emmc_host_ctrl_ver_bits::EMMC_HOST_CTRL_VER_OFFSET;
+        (self.read_reg16(addr) & emmc_host_ctrl_ver_bits::EMMC_VENDOR_VERSION) >> emmc_host_ctrl_ver_bits::EMMC_VENDOR_VERSION_POS
+    }
+}
+
+/* TODO
+ *
  * offset 0x0180 - 0x01dc
 */
 
-
+/// This module contains the offset position of the `EMMC_VER_ID` register and the definitions of its individual bits.
+/// The `EMMC_VER_ID` register is a 32-bit read-only register that contains the current version number.
 pub mod emmc_ver_id_bits {
     pub const EMMC_VER_ID_OFFSET: u64 = 0x500;
 
@@ -960,13 +1115,26 @@ pub mod emmc_ver_id_bits {
     pub const EMMC_VER_ID: u32 = EMMC_VER_ID_MASK;
 }
 
+/// This module implements read operations for the `EMMC_VER_ID` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_ver_id_bits` module.
 impl Reg {
+    /// Return the entire value of the `EMMC_VER_ID` register. 
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00000000
     pub fn emmc_get_ver_id(&self) -> u32 {
         let addr = self.base_addr + emmc_ver_id_bits::EMMC_VER_ID_OFFSET;
         self.read_reg(addr)
     }
 }
 
+/// This module contains the offset position of the `EMMC_VER_TYPE` register and the definitions of its individual bits.
+/// The `EMMC_VER_TYPE` register is a 32-bit read-only register that contains the current version type.
 pub mod emmc_ver_type_bits {
     pub const EMMC_VER_TYPE_OFFSET: u64 = 0x504;
 
@@ -975,13 +1143,26 @@ pub mod emmc_ver_type_bits {
     pub const EMMC_VER_TYPE: u32 = EMMC_VER_TYPE_MASK;
 }
 
+/// This module implements read operations for the `EMMC_VER_TYPE` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_ver_type_bits` module.
 impl Reg {
+    /// Return the entire value of the `EMMC_VER_TYPE` register. 
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00000000
     pub fn emmc_get_ver_type(&self) -> u32 {
         let addr = self.base_addr + emmc_ver_type_bits::EMMC_VER_TYPE_OFFSET;
         self.read_reg(addr)
     }
 }
 
+/// This module contains the offset position of the `EMMC_HOST_CTRL3` register and the definitions of its individual bits.
+/// The `EMMC_HOST_CTRL3` register is a 8-bit read-write register that contains some control setinggs for host.
 pub mod emmc_host_ctrl3_bits {
     pub const EMMC_HOST_CTRL3_OFFSET: u64 = 0x508;
 
@@ -993,35 +1174,115 @@ pub mod emmc_host_ctrl3_bits {
     pub const EMMC_SW_CG_DIS: u8 = EMMC_SW_CG_DIS_MASK;
 }
 
+/// This module implements read and write operations for the `EMMC_HOST_CTRL3` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_host_ctrl3_bits` module.
 impl Reg {
-    pub fn emmc_set_host_ctrl3(&self, host_ctrl3: u8) {
-        let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
-        self.write_reg8(addr, host_ctrl3);
-    }
-
+    /// Return the entire value of the `EMMC_HOST_CTRL3` register. 
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x01
     pub fn emmc_get_host_ctrl3(&self) -> u8 {
         let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
         self.read_reg8(addr)
     }
 
+    /// Set the entire value of the `EMMC_HOST_CTRL3` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - `host_ctrl3` - The value to be written to the register. It is a combination of individual bits defined in `emmc_host_ctrl3_bits`.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_host_ctrl3(&self, host_ctrl3: u8) {
+        let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
+        self.write_reg8(addr, host_ctrl3);
+    }
+
+    /// Enable command conflict check.
+    ///
+    /// Host Controller monitors the CMD line whenever a command is 
+    /// issued and checks whether the value driven on sd_cmd_out 
+    /// matches the value on sd_cmd_in at next subsequent edge of 
+    /// cclk_tx to determine command conflict error. 
+    /// This bit is cleared only if the feed back delay (including IO Pad delay) is more than 
+    /// (t_card_clk_period - t_setup), where t_setup is the setup time of 
+    /// a flop in Host Controller.
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_cmd_conflict_check(&self) {
         let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
         let value = self.read_reg8(addr);
         self.write_reg8(addr, value | emmc_host_ctrl3_bits::EMMC_CMD_CONFLICT_CHECK);
     }
 
+    /// Disable command conflict check.
+    ///
+    /// Host Controller monitors the CMD line whenever a command is 
+    /// issued and checks whether the value driven on sd_cmd_out 
+    /// matches the value on sd_cmd_in at next subsequent edge of 
+    /// cclk_tx to determine command conflict error. 
+    /// This bit is cleared only if the feed back delay (including IO Pad delay) is more than 
+    /// (t_card_clk_period - t_setup), where t_setup is the setup time of 
+    /// a flop in Host Controller.
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_cmd_conflict_check(&self) {
         let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
         let value = self.read_reg8(addr);
         self.write_reg8(addr, value & !emmc_host_ctrl3_bits::EMMC_CMD_CONFLICT_CHECK);
     }
 
+    /// Enable internal clock gate.
+    ///
+    /// This bit must be used to disable IP's internal clock gating when 
+    /// required. when disabled clocks are not gated. Clocks to the core 
+    /// (except hclk) must be stopped when programming this bit. 
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_internal_clock_gate(&self) {
         let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
         let value = self.read_reg8(addr);
         self.write_reg8(addr, value | emmc_host_ctrl3_bits::EMMC_SW_CG_DIS);
     }
 
+    /// Disable internal clock gate.
+    ///
+    /// This bit must be used to disable IP's internal clock gating when 
+    /// required. when disabled clocks are not gated. Clocks to the core 
+    /// (except hclk) must be stopped when programming this bit. 
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_internal_clock_gate(&self) {
         let addr = self.base_addr + emmc_host_ctrl3_bits::EMMC_HOST_CTRL3_OFFSET;
         let value = self.read_reg8(addr);
@@ -1038,6 +1299,8 @@ impl Reg {
 */
 
 
+/// This module contains the offset position of the `EMMC_DLL_CTRL` register and the definitions of its individual bits.
+/// The `EMMC_DLL_CTRL` register is a 32-bit read-write register that contains some control setinggs for dll.
 pub mod emmc_dll_ctrl_bits {
     pub const EMMC_DLL_CTRL_OFFSET: u64 = 0x800;
 
@@ -1058,58 +1321,154 @@ pub mod emmc_dll_ctrl_bits {
     pub const EMMC_DLL_BYPASS: u32 = EMMC_DLL_BYPASS_MASK;
 }
 
+/// This module implements read and write operations for the `EMMC_DLL_CTRL` register itself as well as its individual bits.
+/// - The definition of the bit is in the `emmc_dll_ctrl_bits` module.
 impl Reg {
-    pub fn emmc_set_dll_ctrl(&self, dll_ctrl: u32) {
-        let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
-        self.write_reg(addr, dll_ctrl);
-    }
-
+    /// Return the entire value of the `EMMC_DLL_CTRL` register. 
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - The value read from the register. According to the TRM description, the default value is 0x00000000
     pub fn emmc_get_dll_ctrl(&self) -> u32 {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         self.read_reg(addr)
     }
 
+    /// Set the value of the `EMMC_DLL_CTRL` register.
+    ///
+    /// # Arguments
+    /// 
+    /// - `dll_ctrl` - The value to be written to the register. It is a combination of individual bits defined in `emmc_dll_ctrl_bits`.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_dll_ctrl(&self, dll_ctrl: u32) {
+        let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
+        self.write_reg(addr, dll_ctrl);
+    }
+
+    /// Enable DLL start.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_dll_start(&self) {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         let value = self.read_reg(addr);
         self.write_reg(addr, value | emmc_dll_ctrl_bits::EMMC_DLL_START);
     }
 
+    /// Disable DLL start.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_dll_start(&self) {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         let value = self.read_reg(addr);
         self.write_reg(addr, value & !emmc_dll_ctrl_bits::EMMC_DLL_START);
     }
 
+    /// Reset the DLL.
+    ///
+    /// After the reset is completed, this bit will be cleared by hardware.
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_reset_dll(&self) {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         let value = self.read_reg(addr);
         self.write_reg(addr, value | emmc_dll_ctrl_bits::EMMC_DLL_SRST);
     }
 
+    /// Check the DLL resetting is finished or not.
+    ///
+    /// After the reset is completed, this bit will be cleared by hardware.
+    /// 
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_dll_reset_is_finished(&self) -> bool {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         (self.read_reg(addr) & emmc_dll_ctrl_bits::EMMC_DLL_SRST) == 0
     }
 
-    pub fn emmc_set_dll_incrment(&self, dll_incrment: u32) {
+    /// Set the DLL increment value.
+    ///
+    /// # Arguments
+    /// 
+    /// - `dll_incrment` - The value to be written to the register.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_dll_incrment(&self, dll_incrment: u8) {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         let value = self.read_reg(addr);
-        self.write_reg(addr, (value & !emmc_dll_ctrl_bits::EMMC_DLL_INCRMENT_MASK) | dll_incrment);
+        self.write_reg(addr, (value & !emmc_dll_ctrl_bits::EMMC_DLL_INCRMENT_MASK) | ((dll_incrment as u32) << emmc_dll_ctrl_bits::EMMC_DLL_INCRMENT_POS));
     }
 
-    pub fn emmc_set_dll_start_point(&self, dll_start_point: u32) {
+    /// Set the DLL start point for phase detect.
+    ///
+    /// # Arguments
+    /// 
+    /// - `dll_incrment` - The value to be written to the register.
+    /// 
+    /// # Returns
+    /// 
+    /// - None
+    pub fn emmc_set_dll_start_point(&self, dll_start_point: u8) {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         let value = self.read_reg(addr);
-        self.write_reg(addr, (value & !emmc_dll_ctrl_bits::EMMC_DLL_START_POINT_MASK) | dll_start_point);
+        self.write_reg(addr, (value & !emmc_dll_ctrl_bits::EMMC_DLL_START_POINT_MASK) | ((dll_start_point as u32) << emmc_dll_ctrl_bits::EMMC_DLL_START_POINT_POS));
     }
 
+    /// Enable DLL bypass.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_enable_dll_bypass(&self) {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         let value = self.read_reg(addr);
         self.write_reg(addr, value | emmc_dll_ctrl_bits::EMMC_DLL_BYPASS);
     }
 
+    /// Disable DLL bypass.
+    ///
+    /// # Arguments
+    /// 
+    /// - None
+    /// 
+    /// # Returns
+    /// 
+    /// - None
     pub fn emmc_disable_dll_bypass(&self) {
         let addr = self.base_addr + emmc_dll_ctrl_bits::EMMC_DLL_CTRL_OFFSET;
         let value = self.read_reg(addr);
